@@ -21,3 +21,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+#credentials
+/src/credentials
+!/src/credentials/README.md
+
+#firebase 
+/.firebase
+firebase-debug.log
