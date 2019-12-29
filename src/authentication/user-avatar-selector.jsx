@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 
 const RE_FILENAME=/[\w-]+\.svg$/;
 
-const avatarsDir = 'avatar/user/';
+const avatarDir = 'avatar/user/';
 const avatarPaths = [
 	'0person.svg',
 	'1boy.svg',
@@ -54,14 +54,11 @@ export default function UserIconSelector(props){
 	const classes=useStyles();
 	let userAvatar= props.value || avatarDir+avatarPaths[0];
 
-	function handleSelectAvatar(img){
-		setUserAvatar(img);
-	}
-	
+
 
 	const avatarItems = avatarPaths.map((img) =>
 		<IconButton className={classes.avatarButton} aria-label={img} key={img}
-		onClick={(e) => handleSelectAvatar(img)}>
+		onClick={(e) => props.handleChangeAvatar(img)}>
 			<Avatar
 				src={img}
 				className={

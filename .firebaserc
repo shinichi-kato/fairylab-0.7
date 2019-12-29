@@ -2,6 +2,7 @@
   "projects": {
     "default": "fairylab-ab65d",
     "fairylab": "fairylab-efb48",
-    "fairylab-ab65": "fairylab-ab65d"
+    "fairylab-ab65": "fairylab-ab65d",
+    "failylab-07": "failylab"
   }
 }

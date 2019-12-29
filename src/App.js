@@ -5,8 +5,10 @@ import { ThemeProvider } from '@material-ui/styles';
 
 
 import AuthProvider from './authentication/auth-provider.jsx';
+import Main from './main.jsx';
 
 import * as firebase from 'firebase/app';
+
 import 'firebase/auth';
 import 'firebase/firestore';
 
@@ -50,7 +52,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme} >
       <AuthProvider firebase ={firebase}>
-
+        <Main />
       </AuthProvider>
     </ThemeProvider>
   );

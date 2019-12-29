@@ -1,6 +1,8 @@
-import React ,{createContext,useReducer} from 'react';
+import React ,{useState,useEffect,createContext,useReducer} from 'react';
 
-const AuthContext = createContext();
+import AuthDialog from './auth-dialog.jsx';
+
+export const AuthContext = createContext();
 
 const initialState={
   user: {
@@ -101,8 +103,8 @@ export default function AuthProvider(props){
 
 	function handleCreateUser(email,password){
 		dispatch({type:'run'});
-		firabase.auth().createUserWithEmailAndPassword(email,password)
-		.then(()=>{
+		firebase.auth().createUserWithEmailAndPassword(email,password)
+		.then(user=>{
 			setPage('changeInfo');
 		})
 		.catch(error=>{
@@ -111,7 +113,7 @@ export default function AuthProvider(props){
 	}
 
 	function handleChangeUserInfo(displayName,photoURL){
-		let user = fireabase.auth().currentUser;
+		let user = firebase.auth().currentUser;
 		if(user){
 			user.updateProfile({
 				displayName:displayName,
@@ -132,13 +134,14 @@ export default function AuthProvider(props){
 		}}>
 			{page !== false	?
 				<AuthDialog 
-					authState={state.user.authState}
+					authState={state.authState}
+					message={state.message}
 					page={page}
 					handleSignIn={handleSignIn}
 					handleCreateUser={handleCreateUser}
 					handleChangeUserInfo={handleChangeUserInfo} /> 
 				:
-				<props.children/>
+				props.children
 			}
 		</AuthContext.Provider>
 	)

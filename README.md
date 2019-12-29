@@ -2,6 +2,7 @@
 
 ## Installing
 
+「Firebase を JavaScript プロジェクトに追加する」に従ってアプリの登録をします。
 1. firebaseで新しくプロジェクトを作成
 
 2.ウェブアプリの追加
@@ -26,4 +27,7 @@
 
 4. firebase login
 5. firebase init
+single-page-app
+index.htmlを初期化しない
+rule.jsonを初期化しない
 
