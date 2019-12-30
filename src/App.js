@@ -18,7 +18,7 @@ const app=firebase.initializeApp(firebaseConfig);
 
 const theme = createMuiTheme({
   palette: {
-    primary: { main: '#0D47A1' },
+    primary: { main: '#0277bd' },
     secondary: { main: '#BF360C' },
     background: { default: '#ffe032'}
   },
@@ -51,7 +51,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme} >
-      <AuthProvider firebase ={firebase}>
+      <AuthProvider firebase={firebase}>
         <Main />
       </AuthProvider>
     </ThemeProvider>

@@ -23,7 +23,10 @@ code {
   height: 100vh;
   padding: 0px;
   margin: 0px;
-  background-color: #ededed;
+  background: -moz-linear-gradient(-45deg, #a7b7af 0%, #a7bdd1 100%); 
+  background: -webkit-linear-gradient(-45deg, #a7b7af 0%,#a7bdd1 100%); 
+  background: linear-gradient(135deg, #a7b7af 0%,#a7bdd1 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a7b7af', endColorstr='#a7bdd1',GradientType=1 ); 
 }
 
 @media screen and (min-width: 481px){

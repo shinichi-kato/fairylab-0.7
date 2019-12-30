@@ -1,6 +1,7 @@
 import React ,{useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
+
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -19,6 +20,10 @@ import UserAvatarSelector from './user-avatar-selector.jsx';
 const useStyles = makeStyles(theme => ({
   root: {
    padding:theme.spacing(2)
+ },
+ card: {
+	 padding:theme.spacing(2),
+	 background:theme.palette.background.paper
  },
  items: {
 	 padding:theme.spacing(1),
@@ -67,120 +72,123 @@ export default function AuthDialog(props){
 	}
 
 	return (
-		<Box display="flex" flexDirection="column"
-			alignItems="center"
-			className={classes.root}
-		>
-			<Box className={classes.items}>
-				<Typography variant="h3">
-					ようこそ！
-				</Typography>
-			</Box>
-			<Box className={classes.items}
-				display="flex" flexDirection="row" alignItems="center"
+		<div className={classes.root}>
+			<Box display="flex" flexDirection="column"
+				alignItems="center"
+				borderRadius={10}
+				className={classes.card}
 			>
-				<Box>
-					<EmailIcon />
-				</Box>
 				<Box className={classes.items}>
-					<TextField 
-						className={classes.textField}
-						id="email"
-						placeholder="E-mail"
-						fullWidth
-						readOnly={registerMode}
-						value={email}
-						onChange={e=>{setEmail(e.target.value)}}
-					/>
+					<Typography variant="h3">
+						ようこそ！
+					</Typography>
 				</Box>
-			</Box>
-			<Box className={classes.items}
-				display="flex" flexDirection="row" alignItems="center"
-			>
-				<Box>
-					<VpnKeyIcon />
-				</Box>
-				<Box className={classes.items}>
-					<TextField 
-							className={classes.textField}
-							id="password"
-							type="password"
-							fullWidth
-							placeholder="Password"
-							readOnly={registerMode}
-							value={password}
-							onChange={e=>{setPassword(e.target.value)}}
-						/>
-				</Box>
-
-			</Box>
-
-			{ page === 'signIn' &&
-				<>
-					<Box className={classes.items}>
-						<Typography variant="subtext">
-							{props.message}
-							{props.authState}
-						</Typography>
-						<Button 
-							fullWidth
-							size="large"
-							disabled = {page1NotReady}
-							variant="contained" 
-							color="primary"
-							onClick={handleSignIn}
-							>
-							サインイン
-						</Button>
-					</Box>
-					<Box className={classes.items}>
-						<Button
-							onClick={handleRegisterStep1}
-							fullWidth
-							size="large"
-							disabled={page1NotReady}>
-							新規ユーザー登録する
-						</Button>
-
-					</Box>
-				</>
-			}
-			{ page === 'changeInfo' && 
-				<>
+				<Box className={classes.items}
+					display="flex" flexDirection="row" alignItems="center"
+				>
 					<Box>
+						<EmailIcon />
+					</Box>
+					<Box className={classes.items}>
 						<TextField 
-							id="dispalyName"
-							placeholder="ユーザの名前"
-							InputAdornment={{
-								startAdornment: (
-									<InputAdornment position="start">
-										<PersonIcon />
-									</InputAdornment>	
-								)
-							}}
-							value={displayName}
-							onChange={e=>{setDisplayName(e.target.value)}}
-						/>						
-					</Box>
-					<Box>
-						<UserAvatarSelector 
-							value={photoURL}
-							handleChangeAvatar={url=>{setPhotoURL(url)}} />
-					</Box>
-					<Box>
-						<Button 
+							className={classes.textField}
+							id="email"
+							placeholder="E-mail"
 							fullWidth
-							disabled = {page2NotReady}
-							variant="contained" 
-							color="primary"
-							onClick={handleRegisterStep2}
-							>
-							新規ユーザー登録
-						</Button>
+							readOnly={registerMode}
+							value={email}
+							onChange={e=>{setEmail(e.target.value)}}
+						/>
 					</Box>
-				</>
-			}
+				</Box>
+				<Box className={classes.items}
+					display="flex" flexDirection="row" alignItems="center"
+				>
+					<Box>
+						<VpnKeyIcon />
+					</Box>
+					<Box className={classes.items}>
+						<TextField 
+								className={classes.textField}
+								id="password"
+								type="password"
+								fullWidth
+								placeholder="Password"
+								readOnly={registerMode}
+								value={password}
+								onChange={e=>{setPassword(e.target.value)}}
+							/>
+					</Box>
 
-		</Box>
+				</Box>
+
+				{ page === 'signIn' &&
+					<>
+						<Box className={classes.items}>
+							<Typography variant="subtext">
+								{props.message}
+								{props.authState}
+							</Typography>
+							<Button 
+								fullWidth
+								size="large"
+								disabled = {page1NotReady}
+								variant="contained" 
+								color="primary"
+								onClick={handleSignIn}
+								>
+								サインイン
+							</Button>
+						</Box>
+						<Box className={classes.items}>
+							<Button
+								onClick={handleRegisterStep1}
+								fullWidth
+								size="large"
+								disabled={page1NotReady}>
+								新規ユーザー登録する
+							</Button>
+
+						</Box>
+					</>
+				}
+				{ page === 'changeInfo' && 
+					<>
+						<Box>
+							<TextField 
+								id="dispalyName"
+								placeholder="ユーザの名前"
+								InputAdornment={{
+									startAdornment: (
+										<InputAdornment position="start">
+											<PersonIcon />
+										</InputAdornment>	
+									)
+								}}
+								value={displayName}
+								onChange={e=>{setDisplayName(e.target.value)}}
+							/>						
+						</Box>
+						<Box>
+							<UserAvatarSelector 
+								value={photoURL}
+								handleChangeAvatar={url=>{setPhotoURL(url)}} />
+						</Box>
+						<Box>
+							<Button 
+								fullWidth
+								disabled = {page2NotReady}
+								variant="contained" 
+								color="primary"
+								onClick={handleRegisterStep2}
+								>
+								新規ユーザー登録
+							</Button>
+						</Box>
+					</>
+				}
+
+			</Box>
+		</div>
 	)
 }
