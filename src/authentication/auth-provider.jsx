@@ -33,11 +33,17 @@ function reducer(state,action){
 				message: ''
 			}
 		}
-		case 'success':{
+		case 'ready':{
 			return {
 				user:state.user,
-				authState:'success',
+				authState:'ready',
 				message:action.message,
+			}
+		}
+		case 'success':{
+			return {
+				...state,
+				authState:'ok'
 			}
 		}
 		case 'error': {
@@ -67,6 +73,7 @@ export default function AuthProvider(props){
 				firebase.auth().onAuthStateChanged(user=>{
 					if(user){
 						dispatch({type:'authOk',user:user});
+						setPage(false);
 					}else {
 						dispatch({type:'error',message:'ユーザが認証されていません'});
 					}
@@ -101,10 +108,15 @@ export default function AuthProvider(props){
 		});
 	}
 
+	function handleGetReady(){
+		dispatch({type:'ready'});
+	}
+
 	function handleCreateUser(email,password){
 		dispatch({type:'run'});
 		firebase.auth().createUserWithEmailAndPassword(email,password)
 		.then(user=>{
+			dispatch({type:'ready'})
 			setPage('changeInfo');
 		})
 		.catch(error=>{
@@ -120,7 +132,7 @@ export default function AuthProvider(props){
 				photoURL: photoURL
 			}).then(()=>{
 				// userの更新はonAuthStateChangedで検出
-				setPage(false);
+				dispatch({type:'success'})
 			}).catch(error=>{
 				dispatch({type:'error',message:error.code});
 			})
@@ -132,7 +144,8 @@ export default function AuthProvider(props){
 		<AuthContext.Provider value={{
 			user:state.user,
 			authState:state.authState,
-			handleChangeUserInfo:()=>handleChangeUserInfo(),
+			handleGetReady:()=>handleGetReady(),
+			handleChangeUserInfo:(n,p)=>handleChangeUserInfo(n,p),
 		}}>
 			{page !== false	?
 				<AuthDialog 
@@ -140,6 +153,7 @@ export default function AuthProvider(props){
 					authState={state.authState}
 					message={state.message}
 					page={page}
+					handleGetReady={handleGetReady}
 					handleSignIn={handleSignIn}
 					handleCreateUser={handleCreateUser}
 					handleChangeUserInfo={handleChangeUserInfo} /> 

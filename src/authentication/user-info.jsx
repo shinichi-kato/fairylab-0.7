@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
-import TextField from '@material-ui/core/TextField';
+import InputBase from '@material-ui/core/InputBase';
 
 import PersonIcon from '@material-ui/icons/Person';
 
@@ -42,7 +42,11 @@ const useStyles = makeStyles(theme => createStyles({
 		margin: 10,
 		width: 44,
 		height: 44
-	},
+  },
+  input: {
+    padding: theme.spacing(1),
+    background:theme.palette.background.paper,
+  },
 	currentAvatar: {
 		margin: 2,
 		width: 60,
@@ -53,16 +57,15 @@ const useStyles = makeStyles(theme => createStyles({
 
 export default function UserInfo(props){
   const classes = useStyles();
+  let userAvatar= props.photoURL || avatarDir+avatarPaths[0];
 
-  let userAvatar= props.value || avatarDir+avatarPaths[0];
-
-  const avatarItems = avatarPaths.map((img) =>
-    <IconButton className={classes.avatarButton} aria-label={img} key={img}
-      onClick={(e) => props.handleChangePhotoURL(img)}>
+  const avatarItems = avatarPaths.map(img =>
+    <IconButton className={classes.avatarButton} aria-label={avatarDir+img} key={img}
+      onClick={(e) => props.handleChangePhotoURL(avatarDir+img)}>
         <Avatar
-          src={img}
+          src={avatarDir+img}
           className={
-            img === userAvatar ? classes.currentAvatar : classes.avatar}
+            userAvatar === avatarDir+img ? classes.currentAvatar : classes.avatar}
         />
     </IconButton>
   );
@@ -70,17 +73,13 @@ export default function UserInfo(props){
  
   return (
     <>
-      <Box>
-        <TextField 
+      <Box
+        className={classes.input} 
+        borderRadius={3}>
+        <InputBase 
           id="dispalyName"
           placeholder="ユーザの名前"
-          InputAdornment={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <PersonIcon />
-              </InputAdornment>	
-            )
-          }}
+          startAdornment={ <PersonIcon /> }
           value={props.displayName}
           onChange={e=>{props.handleChangeDisplayName(e.target.value)}}
         />						

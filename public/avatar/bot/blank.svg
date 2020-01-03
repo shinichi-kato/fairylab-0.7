@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88.45mm" height="88.45mm" version="1.1" viewBox="0 0 88.45 88.45" xmlns="http://www.w3.org/2000/svg">
+ <circle cx="44.221" cy="44.21" r="44.22" fill="#e6e6e6" opacity=".967"/>
+ <path transform="scale(.26458)" d="m96.068 226.64c-22.233 0-40.131 17.9-40.131 40.133v24.859a167.13 167.13 0 0 0 111.2 42.588 167.13 167.13 0 0 0 111.2-42.631v-24.816c0-22.233-17.9-40.133-40.133-40.133h-142.13z" fill="#b8c9bf" opacity=".967" stroke-width="3.7795"/>
+ <rect x="13.863" y="25.486" width="60.716" height="25.486" rx="13.648" ry="12.743" fill="#b7c8be" opacity=".967"/>
+</svg>

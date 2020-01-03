@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 const parentPage={
 	'Dashboard' : null,
+	'UserSettings' : 'Dashboard',
 	'ScriptEditor' : 'Dashboard',
 }
 
@@ -42,13 +43,13 @@ export default function Main(props){
 		),
 		'UserSettings': ()=>(
 			<UserSettings 
-				ToParentPage={handleToParentPage}
+				toParentPage={handleToParentPage}
 			/>
 		),
 		'ScriptEditor' : ()=>(
 			<ScriptEditor 
 				handleClose={handleToParentPage}
-				ToParentPage={handleToParentPage}
+				toParentPage={handleToParentPage}
 			/>
 		),
 	} 

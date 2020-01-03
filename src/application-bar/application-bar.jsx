@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
 
 
 export default function ApplicationBar(props){
-  const {currentPage,ToParentPage} = props;
+  const {currentPage,toParentPage} = props;
   const classes = useStyles();
 
   return (
@@ -35,7 +35,7 @@ export default function ApplicationBar(props){
           <IconButton 
             edge="start"
             disable={currentPage === 'Dashboard'}
-            onClick={e=>props.ToParentPage()}
+            onClick={e=>toParentPage()}
             color="inherit" >
             <NavigateBefore />
           </IconButton>

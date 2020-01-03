@@ -1,4 +1,4 @@
-import React ,{useState,useContext} from 'react';
+import React ,{useState,useEffect,useContext} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -33,14 +33,22 @@ const useStyles = makeStyles(theme => ({
 export default function UserSettings(props){
   const classes = useStyles();
   const auth = useContext(AuthContext);
-  console.log("auth=",auth);
   const user = auth.user;
   const [displayName,setDisplayName] = useState(user.displayName);
   const [photoURL,setPhotoURL] = useState(user.photoURL);
 
-  function handleChangeUserInfo(){
-    auth.handleChangeUserInfo(displayName,photoURL);
-    props.toParentPage();
+  useEffect(()=>{
+    auth.handleGetReady();
+  },[]);
+
+  function handleEngage(e){
+    if(auth.authState==='ready'){
+      auth.handleChangeUserInfo(displayName,photoURL);
+    }else{
+      props.toParentPage();
+    }
+ 
+
   }
 
   return(
@@ -49,17 +57,17 @@ export default function UserSettings(props){
       flexDirection="column"
       alignItems="center"
       className={classes.root}>
-      <Box>
+      <Box className={classes.items}>
         <Typography variant="h4">
           ユーザ情報設定
         </Typography>
       </Box>
-      <Box>
+      <Box className={classes.items}>
         <Typography >
           <EmailIcon/>{auth.user.email}
         </Typography>
       </Box>
-      <Box>
+      <Box className={classes.items}>
         <UserInfo 
           photoURL={photoURL}
           handleChangePhotoURL={setPhotoURL}
@@ -68,20 +76,24 @@ export default function UserSettings(props){
         />
       </Box>
       <Box className={classes.items}>
-        {auth.authState}
+        {auth.authState}{auth.message}
         <Button
-          onClick={handleChangeUserInfo}
+          onClick={handleEngage}
           fullWidth
           variant="contained"
           color="primary"
           size="large">
-          ユーザ設定を変更する
+          {auth.authState==="ready" ? 
+            "ユーザ設定を変更する"
+            :
+            "完了"
+          }
         </Button>
 
       </Box>
       <Box className={classes.items}>
         <Button
-          onClick={props.ToParentPage}
+          onClick={props.toParentPage}
           fullWidth
           size="large">
           キャンセル

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="88.45mm" height="88.45mm" version="1.1" viewBox="0 0 88.45 88.45" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(53.67 118)">
+  <circle cx="-9.449" cy="-73.79" r="44.22" fill="#e6e6e6" opacity=".967"/>
+  <ellipse cx="-9.449" cy="-88.11" rx="20.08" ry="21.22" fill="#b7bec8" opacity=".967"/>
+  <path transform="scale(.2646)" d="m-35.71-229.5a133.1 80.21 0 0 0-127.8 58.04 167.1 167.1 0 0 0 127.8 59.68 167.1 167.1 0 0 0 127.9-59.56 133.1 80.21 0 0 0-127.9-58.16z" fill="#b7bec8" opacity=".967"/>
+ </g>
+</svg>

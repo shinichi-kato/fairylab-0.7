@@ -1,10 +1,10 @@
 import React ,{useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
-
 import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
+import InputBase from '@material-ui/core/InputBase';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import EmailIcon from '@material-ui/icons/Email';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
@@ -68,6 +68,17 @@ export default function AuthDialog(props){
 		props.handleSignIn(email,password);
 	}
 
+	function handleKeyPress(e){
+		if(e.key === 'Enter'){
+			e.preventDefault();
+			if(registerMode === false){
+				props.handleCreateUser(email,password);
+			}else{
+				props.handleChangeUserInfo(displayName,photoURL);
+			}
+		}
+	}
+
 	return (
 		<div className={classes.root}>
 			<Box display="flex" flexDirection="column"
@@ -87,7 +98,7 @@ export default function AuthDialog(props){
 						<EmailIcon />
 					</Box>
 					<Box className={classes.items}>
-						<TextField 
+						<InputBase 
 							className={classes.textField}
 							id="email"
 							placeholder="E-mail"
@@ -105,7 +116,7 @@ export default function AuthDialog(props){
 						<VpnKeyIcon />
 					</Box>
 					<Box className={classes.items}>
-						<TextField 
+						<InputBase 
 								className={classes.textField}
 								id="password"
 								type="password"
@@ -113,6 +124,7 @@ export default function AuthDialog(props){
 								placeholder="Password"
 								readOnly={registerMode}
 								value={password}
+								onKeyPress={handleKeyPress}
 								onChange={e=>{setPassword(e.target.value)}}
 							/>
 					</Box>
@@ -134,7 +146,15 @@ export default function AuthDialog(props){
 								color="primary"
 								onClick={handleSignIn}
 								>
-								サインイン
+								{props.authState==='run' ? 
+									<><CircularProgress 
+										color="prirmary"
+										size={13}
+									
+										/>認証中</>
+									:
+									"サインイン"
+								}
 							</Button>
 						</Box>
 						<Box className={classes.items}>
@@ -167,6 +187,7 @@ export default function AuthDialog(props){
 								color="primary"
 								onClick={handleRegisterStep2}
 								>
+									
 								新規ユーザー登録
 							</Button>
 						</Box>
