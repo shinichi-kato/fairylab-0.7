@@ -30,7 +30,6 @@ const useStyles = makeStyles(theme => createStyles({
     height: 90
 	},
 	buttonContainer: {
-		width: "50%"
 	},
  }));
 
@@ -48,8 +47,8 @@ export default function Dashboard(props){
 			</Box>
 			<Box 
 				display="flex"
-				flecDirection="row"
-				alignContents="stretch"
+				flexDirection="row"
+				justifyContent="space-between"
 			>
 				<Box className={classes.buttonContainer}>
 					<Button className={classes.homeButton}>

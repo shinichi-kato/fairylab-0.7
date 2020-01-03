@@ -5,13 +5,11 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import InputAdornment from '@material-ui/core/InputAdornment';
 
-import PersonIcon from '@material-ui/icons/Person';
-import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import EmailIcon from '@material-ui/icons/Email';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
 
-import UserAvatarSelector from './user-avatar-selector.jsx';
+import UserInfo from './user-info.jsx';
 
 
 
@@ -41,12 +39,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function AuthDialog(props){
 	const classes = useStyles();
-	
-	const page= props.page;
-	const [email,setEmail] = useState("");
-	const [password,setPassword] = useState("");
-	const [displayName,setDisplayName] = useState("");
-	const [photoURL,setPhotoURL] = useState("");
+	const {user,page} = props;
+	const [email,setEmail] = useState(user.email);
+	const [password,setPassword] = useState(user.password);
+	const [displayName,setDisplayName] = useState(user.dispalyName);
+	const [photoURL,setPhotoURL] = useState(user.photoURL);
 
 	
 	const page1NotReady = 
@@ -155,24 +152,12 @@ export default function AuthDialog(props){
 				{ page === 'changeInfo' && 
 					<>
 						<Box>
-							<TextField 
-								id="dispalyName"
-								placeholder="ユーザの名前"
-								InputAdornment={{
-									startAdornment: (
-										<InputAdornment position="start">
-											<PersonIcon />
-										</InputAdornment>	
-									)
-								}}
-								value={displayName}
-								onChange={e=>{setDisplayName(e.target.value)}}
-							/>						
-						</Box>
-						<Box>
-							<UserAvatarSelector 
-								value={photoURL}
-								handleChangeAvatar={url=>{setPhotoURL(url)}} />
+							<UserInfo 
+							photoURL={photoURL}
+							handleChangePhotoURL={setPhotoURL}
+							displayName={displayName}
+							handleChangeDisplayName={setDisplayName}
+							/>
 						</Box>
 						<Box>
 							<Button 

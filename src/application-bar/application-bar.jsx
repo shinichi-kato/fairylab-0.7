@@ -7,7 +7,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import NavigateBefore from '@material-ui/icons/NavigateBefore';
-import Close from '@material-ui/icons/Close';
 
 import AppMenu from './app-menu.jsx';
 
@@ -44,7 +43,7 @@ export default function ApplicationBar(props){
             { currentPage }
           </Typography>
           <AppMenu
-            pageHandlers={props.menuPageHandlers}
+            handleChangePage={props.handleChangePage}
           />
         </Toolbar>
         

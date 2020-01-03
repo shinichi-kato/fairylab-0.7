@@ -9,9 +9,6 @@ import Paper from '@material-ui/core/Paper';
 
 
 import MoreVert from '@material-ui/icons/MoreVert';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import Warning from '@material-ui/icons/Warning';
-import CloudUploadIcon from '@material-ui/icons/CloudUploadOutlined';
 
 import {version} from '../../package.json';
 
@@ -36,7 +33,12 @@ const useStyles = makeStyles(theme => ({
 function AppMenuDialog(props){
   const classes = useStyles();
   const {id,anchorEl,open,handleClose} = props; 
-  console.log(props.pageHandlers);
+
+  function handleChangePage(page){
+    handleClose();
+    props.handleChangePage(page);
+  }
+
   return (
     <Popover
       id={id}
@@ -52,21 +54,24 @@ function AppMenuDialog(props){
         horizontal: 'right',
       }}
     >
-      <Paper className={classes.roor}>
+      <Paper className={classes.root}>
         <Box display="flex" flexDirection="column">
           <Box>
             <Button className={classes.wideButton}
-              
+              onClick={e=>handleChangePage('UserSettings')}
             >
               ユーザ設定の変更
             </Button>
           </Box>
           <Box>
             <Button className={classes.wideButton}
-              onClick={e=>props.pageHandlers['ScriptEditor']}
+              onClick={e=>handleChangePage('ScriptEditor')}
             >
               チャットボット辞書の編集
             </Button>
+          </Box>
+          <Box>
+            <Typography variant="subtitle1">{version}</Typography>
           </Box>
         </Box>
       </Paper>
@@ -100,7 +105,7 @@ export default function AppMenu(props){
         open={open}
         anchorEl={anchorEl}
         handleClose={handleClose}
-        pageHandlers={props.pageHandlers}
+        handleChangePage={props.handleChangePage}
       />
 
     </>

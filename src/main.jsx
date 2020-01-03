@@ -4,6 +4,7 @@ import Box from '@material-ui/core/Box';
 import ApplicationBar from './application-bar/application-bar.jsx';
 import Dashboard from './dashboard/dashboard.jsx';
 import ScriptEditor from './editor/script-editor.jsx';
+import UserSettings from './authentication/user-settings.jsx';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 const parentPage={
 	'Dashboard' : null,
-	'ScriptEditor' : 'Dahsboard',
+	'ScriptEditor' : 'Dashboard',
 }
 
 export default function Main(props){
@@ -39,6 +40,11 @@ export default function Main(props){
 		'Dashboard' : ()=>(
 			<Dashboard />
 		),
+		'UserSettings': ()=>(
+			<UserSettings 
+				ToParentPage={handleToParentPage}
+			/>
+		),
 		'ScriptEditor' : ()=>(
 			<ScriptEditor 
 				handleClose={handleToParentPage}
@@ -46,6 +52,10 @@ export default function Main(props){
 			/>
 		),
 	} 
+
+	function handleChangePage(page){
+		setCurrentPage(page);
+	}
 
 	return(
 		<Box display="flex"
@@ -56,9 +66,7 @@ export default function Main(props){
 			<Box >
 				<ApplicationBar 
 					currentPage={currentPage}
-					menuPageHandlers={{
-						'ScriptEditor':()=>setCurrentPage('ScriptEidor')
-					}}
+					handleChangePage={handleChangePage}
 					toParentPage={handleToParentPage}
 
 				/>
@@ -67,7 +75,7 @@ export default function Main(props){
 				{ currentPage in mainView ?
 					mainView[currentPage]
 					:
-					<div>Error</div>
+					<div>Invalid page `{currentPage}` </div>
 				}
 			</Box>
 		</Box>

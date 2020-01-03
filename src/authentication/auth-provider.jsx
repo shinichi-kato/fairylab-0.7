@@ -21,7 +21,7 @@ function reducer(state,action){
 	switch(action.type){
 		case 'run': {
 			return {
-				account:initialState.user,
+				user:initialState.user,
 				authState:'run',
 				message: '',
 			}
@@ -130,10 +130,13 @@ export default function AuthProvider(props){
 	
 	return (
 		<AuthContext.Provider value={{
-			user:state.user
+			user:state.user,
+			authState:state.authState,
+			handleChangeUserInfo:()=>handleChangeUserInfo(),
 		}}>
 			{page !== false	?
 				<AuthDialog 
+					user={state.user}
 					authState={state.authState}
 					message={state.message}
 					page={page}
