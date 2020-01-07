@@ -1,10 +1,11 @@
-import React ,{useState,useEffect} from 'react';
+import React ,{useRef,useEffect} from 'react';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
 
 
 import AuthProvider from './authentication/auth-provider.jsx';
+import BotProvider from './biome-bot/bot-provider.jsx';
 import Main from './main.jsx';
 
 import * as firebase from 'firebase/app';
@@ -13,8 +14,7 @@ import 'firebase/auth';
 import 'firebase/firestore';
 
 import {firebaseConfig} from './credentials/firebase-init.js';
-const app=firebase.initializeApp(firebaseConfig);
-
+const app = firebase.initializeApp(firebaseConfig);
 
 const theme = createMuiTheme({
   palette: {
@@ -27,7 +27,17 @@ const theme = createMuiTheme({
 
 
 export default function App() {
+  
+  //------------------------------------------------------------------
+  //  firestoreへの接続
+  // 　※after signing-in to firebase 
 
+  const firestoreRef = useRef(null);
+
+  function handleConnectFirestore(){
+    firestoreRef.current = firebase.firestore(app);
+  } 
+  
   //------------------------------------------------------------------
   //  body要素のバウンススクロールを無効化
 
@@ -49,10 +59,18 @@ export default function App() {
     }
   },[]);
 
+
   return (
     <ThemeProvider theme={theme} >
-      <AuthProvider firebase={firebase}>
-        <Main />
+      <AuthProvider 
+        firebase={firebase}
+        handleConnectFirestore={handleConnectFirestore}
+      >
+        <BotProvider 
+          firestoreRef={firestoreRef.current}
+        >
+          <Main />
+        </BotProvider>
       </AuthProvider>
     </ThemeProvider>
   );

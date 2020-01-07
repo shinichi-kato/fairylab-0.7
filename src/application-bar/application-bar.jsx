@@ -1,7 +1,6 @@
-import React ,{useState} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -34,7 +33,7 @@ export default function ApplicationBar(props){
         <Toolbar>
           <IconButton 
             edge="start"
-            disable={currentPage === 'Dashboard'}
+            disabled={currentPage === 'Dashboard'}
             onClick={e=>toParentPage()}
             color="inherit" >
             <NavigateBefore />

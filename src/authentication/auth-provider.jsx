@@ -59,7 +59,7 @@ function reducer(state,action){
 }
 
 export default function AuthProvider(props){
-	const firebase = props.firebase;
+	const {firebase} = props;
 	const [state,dispatch] = useReducer(reducer,initialState);
 	const [page,setPage] = useState(false);
 
@@ -73,6 +73,10 @@ export default function AuthProvider(props){
 				firebase.auth().onAuthStateChanged(user=>{
 					if(user){
 						dispatch({type:'authOk',user:user});
+
+						// create firesotreRef after signing-in 
+						props.handleConnectFirestore();
+
 						setPage(false);
 					}else {
 						dispatch({type:'error',message:'ユーザが認証されていません'});
@@ -139,6 +143,10 @@ export default function AuthProvider(props){
 		}
 	}
 
+	function handleClose(){
+		setPage(false);
+	}
+
 	
 	return (
 		<AuthContext.Provider value={{
@@ -153,6 +161,7 @@ export default function AuthProvider(props){
 					authState={state.authState}
 					message={state.message}
 					page={page}
+					handleClose={handleClose}
 					handleGetReady={handleGetReady}
 					handleSignIn={handleSignIn}
 					handleCreateUser={handleCreateUser}

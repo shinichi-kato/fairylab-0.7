@@ -1,8 +1,10 @@
-import React,{useState} from 'react';
+import React,{useState,useContext} from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+
+import UserState from './user-state.jsx';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -42,8 +44,16 @@ export default function Dashboard(props){
 			flexDirection="column"
 			flexWrap="nowrap"
 			>
-			<Box flexGrow={1}>
-
+			<Box flexGrow={1}
+				display="flex"
+				flexDirection="row"
+			>
+				<Box>
+					<UserState />
+				</Box>
+				<Box>
+					BotState
+				</Box>
 			</Box>
 			<Box 
 				display="flex"

@@ -13,7 +13,7 @@ import UserInfo from './user-info.jsx';
 
 
 
-// import {useLocalStorage} from 'react-use';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -44,7 +44,6 @@ export default function AuthDialog(props){
 	const [password,setPassword] = useState(user.password);
 	const [displayName,setDisplayName] = useState(user.dispalyName);
 	const [photoURL,setPhotoURL] = useState(user.photoURL);
-
 	
 	const page1NotReady = 
 		password === "" || email === "" || props.authState === 'run'; 
@@ -60,7 +59,12 @@ export default function AuthDialog(props){
 	
 	function handleRegisterStep2(e){
 		// 現ユーザの表示名とavatarを更新
-		props.handleChangeUserInfo(displayName,photoURL);
+		if(props.authState==='ready'){
+			props.handleChangeUserInfo(displayName,photoURL);
+		}else{
+			props.handleClose();
+		}
+		
 		
 	}
 	
@@ -187,8 +191,11 @@ export default function AuthDialog(props){
 								color="primary"
 								onClick={handleRegisterStep2}
 								>
-									
-								新規ユーザー登録
+								{props.authState==="ready" ? 
+									"新規ユーザ登録"
+									:
+									"完了"
+								}	
 							</Button>
 						</Box>
 					</>

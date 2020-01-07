@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const parentPage={
-	'Dashboard' : null,
+	'Dashboard' : 'Dashboard',
 	'UserSettings' : 'Dashboard',
 	'ScriptEditor' : 'Dashboard',
 }
@@ -39,7 +39,9 @@ export default function Main(props){
 	 
 	const mainView = {
 		'Dashboard' : ()=>(
-			<Dashboard />
+			<Dashboard 
+				
+			/>
 		),
 		'UserSettings': ()=>(
 			<UserSettings 
