@@ -1,14 +1,13 @@
 import React from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import InputBase from '@material-ui/core/InputBase';
 
 import PersonIcon from '@material-ui/icons/Person';
 
-const RE_FILENAME=/[\w-]+\.svg$/;
+// const RE_FILENAME=/[\w-]+\.svg$/;
 
 const avatarDir = 'avatar/user/';
 const avatarPaths = [

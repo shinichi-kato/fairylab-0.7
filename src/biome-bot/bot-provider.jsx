@@ -9,7 +9,7 @@ export const BotContext = createContext();
 
 function uploadSample(firestoreRef){
 	// firestoreに何もボットが保存されていない場合にサンプルのボットを書き込む
-	let fsRef = firestoreRef.current;
+	let fsRef = firestoreRef;
 	
 	fsRef.collection('bot').doc('greeting').set({
 		displayName:'あいさつボット',
@@ -25,11 +25,11 @@ function uploadSample(firestoreRef){
 		availability: 1,
 		triggerLevel: 0.1,
 		retention: 1,
-		dict:[
+		dict:JSON.stringify([
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
 			[["ばいばい","さようなら"],["ばいば〜い"]],
 			[["怒りっぽいと言われた"],["そうだったんですか。。。\n情熱的なんですね。"]]
-		],
+		]),
 	});
 
 	
@@ -45,7 +45,6 @@ function initialState(){
 		parts : JSON.parse(localStorage.getItem('bot.parts')) || [],
 		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
 	};
-	console.log("bot init data=",data)
 
 	biomeBot.setParam(data);
 
@@ -126,7 +125,7 @@ export default function BotProvider(props){
 	/*
 		チャットボットクラスBiomeBotが利用するパラメータのI/O
 	*/
-	const {firestoreRef} = props;
+	const firestoreRef = props.firestore;
 	const [state,dispatch] = useReducer(reducer,initialState());
 	const [message,setMessage] = useState("");
 	const [botList,setBotList] = useState([]);
@@ -192,7 +191,6 @@ export default function BotProvider(props){
 			if(state.id){
 				// 1. 起動時、localStorageにデータがあれば
 				//    firebase上のデータ更新を確認し、最新版をロードしてコンパイル
-				console.log("bot found");
 				let fsRef = firestoreRef
 					.collection('bot').doc(state.id);
 
@@ -203,7 +201,6 @@ export default function BotProvider(props){
 						dispatch({type:'setParam', dict:data});
 						biomeBot.setParam(data);
 						loadParts();
-						console.log('bot loaded')
 
 					}else{
 						// ローカルにあるボットがまだアップロードされていない
@@ -222,16 +219,18 @@ export default function BotProvider(props){
 			// 2. localstorageにデータがない場合、
 			//     firebaseにデータがあるか確認。なければサンプルをアップロード
 
-			let query = firestoreRef.collection('bot');
-			if(query.empty){
-				uploadSample(firestoreRef);
-			}
+			firestoreRef.collection('bot').limit(1)
+			.get()
+			.then(doc=>{
+				if(!doc.exists){
+					console.log("query is empty")
+					uploadSample(firestoreRef);
+				}
+			});
+			
+				// 3. firebaseからダウンロードするDialogを開く
+			setShowDownload(true);
 		}
-		
-		// 3. firebaseからダウンロードするDialogを開く
-		setShowDownload(true);
-
-	
 
 	},[firestoreRef]);
 

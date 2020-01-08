@@ -1,4 +1,4 @@
-import React ,{useRef,useEffect} from 'react';
+import React ,{useState,useEffect} from 'react';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
@@ -32,10 +32,10 @@ export default function App() {
   //  firestoreへの接続
   // 　※after signing-in to firebase 
 
-  const firestoreRef = useRef(null);
+  const [firestore,setFirestore] = useState(null);
 
   function handleConnectFirestore(){
-    firestoreRef.current = firebase.firestore(app);
+    setFirestore(firebase.firestore(app));
   } 
   
   //------------------------------------------------------------------
@@ -67,7 +67,7 @@ export default function App() {
         handleConnectFirestore={handleConnectFirestore}
       >
         <BotProvider 
-          firestoreRef={firestoreRef.current}
+          firestore={firestore}
         >
           <Main />
         </BotProvider>
