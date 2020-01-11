@@ -67,6 +67,7 @@ export default function App() {
         handleConnectFirestore={handleConnectFirestore}
       >
         <BotProvider 
+          firebase={firebase}
           firestore={firestore}
         >
           <Main />

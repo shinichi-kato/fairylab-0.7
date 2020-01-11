@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 export default function SorterSelector(props){
-  const {sorters,sorterLabel} = props;
+  const {sorters,sorterIndex,sorterSettings} = props;
   const [anchorEl,setAnchorEl] = useState(null);
   
   function handleClick(e){
@@ -15,7 +15,7 @@ export default function SorterSelector(props){
   }
 
   function handleClickMenuItem(e,index){
-    props.handleChangeSortBy(sorters[index]);
+    props.handleChangeSorterIndex(index);
     setAnchorEl(null);
   }
 
@@ -30,7 +30,7 @@ export default function SorterSelector(props){
         aria-haspopup="true"
         onClick={handleClick}
       >
-        {sorterLabel[props.sortBy]}<ExpandMoreIcon />
+        {sorterSettings[sorters[sorterIndex]].label}<ExpandMoreIcon />
       </Button>
       <Menu	
         id="sorter-selector"
@@ -40,11 +40,11 @@ export default function SorterSelector(props){
       >
         {sorters.map((sorter,index)=>(
           <MenuItem 
-            key={sorter}
-            selected={sorter===props.sortBy}
+            key={index}
+            selected={index===sorterIndex}
             onClick={e=>handleClickMenuItem(e,index)}
           >
-            {sorterLabel[sorter]}
+            {sorterSettings[sorter].label}
           </MenuItem>
         ))}
       </Menu>

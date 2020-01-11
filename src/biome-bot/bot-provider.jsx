@@ -1,26 +1,67 @@
-import React ,{useState,useEffect,createContext,useReducer} from 'react';
+import React ,{useState,useEffect,createContext,useContext,useReducer} from 'react';
 import BiomeBot from './BiomeBot.jsx';
 import DownloadDialog from './download-dialog.jsx'; 
+import SorterSelector from './sorter-selector.jsx';
+
+import {AuthContext} from '../authentication/auth-provider.jsx';
 
 const biomeBot = new BiomeBot();
 const BOT_LIST_MAX_LEN=20;
 
+const sorters = [
+	'timestamp','name','likeCount','mybot'
+];
+
+const sorterSettings={
+	'mybot':{
+		label:'マイボット',
+		order:'timestamp',
+		dir:'desc',
+		private:true,
+	},
+	'timestamp':{
+		label:'新着順',
+		order:'timestamp',
+		dir:'desc',
+		private:false,
+	},
+  'name':{
+		label:'名前順',
+		order:'displayName',
+		dir:"asc",
+		private:false,
+	},
+	'likeCount':{
+		label:'人気順',
+		order:'likeCount',
+		dir:'desc',
+		private:false,
+	}
+};
+
 export const BotContext = createContext();
 
-function uploadSample(firestoreRef){
+
+
+
+function setSampleBot(firebase,firestoreRef){
+	// 
 	// firestoreに何もボットが保存されていない場合にサンプルのボットを書き込む
-	let fsRef = firestoreRef;
+	let fsBotRef = firestoreRef.collection('bot').doc('HelloBot');
 	
-	fsRef.collection('bot').doc('greeting').set({
+	fsBotRef.set({
 		displayName:'あいさつボット',
 		photoURL: 'avatar/bot/crystal/blueCrystal.svg',
 		creatorUID: null,
-		timestamp: 0,
+		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+		description: '挨拶を返すボットです',
+		published : true,
 		parts: JSON.stringify(["greeeting"]),
-		memory: JSON.stringify({})
+		likeCount:0,
+		memory: JSON.stringify({}),
 	});
 
-	fsRef.collection('part').doc('greeting').set({
+	fsBotRef.collection('part').doc('greeting').set({
 		type: "sensor",
 		availability: 1,
 		triggerLevel: 0.1,
@@ -36,12 +77,15 @@ function uploadSample(firestoreRef){
 }
 
 function initialState(){
+	// localStorageからbotをロード
 	const data = {
 		id : localStorage.getItem('bot.id') || null,
 		displayName : localStorage.getItem('bot.displayName') || 'noname',
 		photoURL : localStorage.getItem('bot.photoURL') || '',
 		creatorUID : localStorage.getItem('bot.creatorUID') || null,
 		timestamp : localStorage.getItem('bot.timestamp') || '',
+		published : localStorage.getItem('bot.published') || false,
+		description: localStorage.getItem('bot.description') || "",
 		parts : JSON.parse(localStorage.getItem('bot.parts')) || [],
 		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
 	};
@@ -84,6 +128,8 @@ function reducer(state,action){
 			localStorage.setItem('bot.displayName',dict.displayName);
 			localStorage.setItem('bot.photoURL',dict.photoURL);
 			localStorage.setItem('bot.creatorUID',dict.creatorUID);
+			localStorage.setItem('bot.description',dict.description);
+			localStorage.setItem('bot.published',dict.published);
 			localStorage.setItem('bot.timestamp',dict.timestamp);
 			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));
 			localStorage.setItem('bot.memory',JSON.stringify(dict.memory));
@@ -129,12 +175,31 @@ export default function BotProvider(props){
 	const [state,dispatch] = useReducer(reducer,initialState());
 	const [message,setMessage] = useState("");
 	const [botList,setBotList] = useState([]);
+	const [sorterIndex,setSorterIndex]  = useState(0);
 	const [showDownload,setShowDownload] = useState(false);
+	const auth = useContext(AuthContext);
 
+
+	function handleChangeSorterIndex(index){
+		setSorterIndex(index);
+		fetchBotList();
+	}
+
+	function handleSetSampleBot(){
+		setSampleBot(props.firebase,firestoreRef);
+		fetchBotList();
+	}
 	
-	function fetchBotList(sortby){
+	function fetchBotList(){
+		const settings = sorterSettings[sorters[sorterIndex]];
+		console.log("index=",sorterIndex,"settings=",settings)
+		const cond = settings.private ? 
+			{l:'creatorUID',r:auth.user.uid} :
+			{l:'published',r:true};
+
 		firestoreRef.collection('bot')
-			.order(sortby)
+			.where(cond.l,'==',cond.r)
+			// .orderBy(settings.order,settings.dir) // index生成まわりらしきエラーが出る
 			.limit(BOT_LIST_MAX_LEN)
 			.get()
 			.then(snapshot=>{
@@ -152,12 +217,21 @@ export default function BotProvider(props){
 					})
 				})
 				setBotList(result);
+				console.log(result);
 
 			}).catch(error=>{
 				setMessage(error)
 				setShowDownload(true);
 			});
 
+	}
+
+
+	function handleDownload(settings){
+		dispatch({type:'setParam',dict:settings})
+		biomeBot.setParam(settings);
+		loadParts();
+		
 	}
 
 	function loadParts(){
@@ -185,9 +259,32 @@ export default function BotProvider(props){
 		}
 	}
 
+
+
+
 	useEffect(()=>{
+		let loaded = false;
+		if(loaded){ return; }
+
 		if(firestoreRef !== null) 
 		{
+			loaded = true;
+
+			if(!localStorage.getItem('botDB_initialized')){
+				// 0. failylabを初回起動したときに限り、
+				// 'bot'コレクションが空だったら sampleBotを書き込む
+				localStorage.setItem('botDB_initialized',true);
+
+				firestoreRef.collection('bot').limit(1)
+					.get()
+					.then(doc=>{
+						if(!doc.exists){
+							setSampleBot(props.firebase,firestoreRef);
+						}
+					})
+				
+			}
+
 			if(state.id){
 				// 1. 起動時、localStorageにデータがあれば
 				//    firebase上のデータ更新を確認し、最新版をロードしてコンパイル
@@ -201,6 +298,7 @@ export default function BotProvider(props){
 						dispatch({type:'setParam', dict:data});
 						biomeBot.setParam(data);
 						loadParts();
+					
 
 					}else{
 						// ローカルにあるボットがまだアップロードされていない
@@ -217,19 +315,10 @@ export default function BotProvider(props){
 			}
 			
 			// 2. localstorageにデータがない場合、
-			//     firebaseにデータがあるか確認。なければサンプルをアップロード
-
-			firestoreRef.collection('bot').limit(1)
-			.get()
-			.then(doc=>{
-				if(!doc.exists){
-					console.log("query is empty")
-					uploadSample(firestoreRef);
-				}
-			});
-			
-				// 3. firebaseからダウンロードするDialogを開く
+			//    firebaseからダウンロードするDialogを開く
+			fetchBotList();
 			setShowDownload(true);
+			
 		}
 
 	},[firestoreRef]);
@@ -240,9 +329,18 @@ export default function BotProvider(props){
 		}}>
 			{showDownload ?
 				<DownloadDialog 
+					sorterSelector={
+						<SorterSelector
+							sorters={sorters}
+							sorterIndex={sorterIndex}
+							handleChangeSorterIndex={handleChangeSorterIndex}
+							sorterSettings={sorterSettings} />
+					}
 					message={message}
 					botList={botList}
 					fetchBotList={fetchBotList}
+					handleDownload={handleDownload}
+					handleSetSampleBot={handleSetSampleBot}
 				/>
 				:
 				props.children

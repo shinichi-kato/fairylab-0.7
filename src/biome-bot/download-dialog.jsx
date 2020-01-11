@@ -1,4 +1,4 @@
-import React ,{useState} from 'react';
+import React ,{useState,useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
@@ -8,19 +8,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
-
-import SorterSelector from './sorter-selector.jsx';
-
-
-const sorters = [
-	'timestamp','name','dlCount'
-];
-
-const sorterLabel={
-	'timestamp':'新着順',
-  'name':'名前順',
-	'dlCount':'DL数順'
-};
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -32,6 +19,9 @@ const useStyles = makeStyles(theme => ({
 		padding:theme.spacing(1),
 		width: "80%",
 	},
+	listItem: {
+		background:theme.palette.background.default,
+	},
 	textField: {
 		width: "40%",
 	},
@@ -39,31 +29,48 @@ const useStyles = makeStyles(theme => ({
 		width: "100%",
 		padding: 16,
 	},
+	avatar: {
+		width: 100,
+		height: 100
+	},
+
 }));
 
 export default function DownloadDialog(props){
 	const classes = useStyles();
-	const [sortBy,setSortBy] = useState(sorters[0]);
-	const [id,setId] = useState(null);
+	const [botIndex,setBotIndex] = useState(null);
 
-	function handleChangeSortBy(mode){
-		setSortBy(mode);
+	function handleClick(e,index){
+		setBotIndex(index)
 	}
 
-	function handleClick(e,id){
-		setId(id)
+	function handleDownload(){
+		props.hanleDownload(botList[botIndex])
 	}
+	
+	const botList = props.botList;
 
-	const botItems = props.botList.map(item=>(
-		<ListItem button onClick={e=>handleClick(e,item.id)}>
-			<ListItemAvatar>
-				<Avatar src={item.photoURL}/>
-			</ListItemAvatar>
-			<ListItemText>
-				{item.id}
-			</ListItemText>
-		</ListItem>
-	));
+
+	const botItems = botList.length !== 0 ?
+		botList.map((item,index)=>(
+			<ListItem 
+				className={classes.listItem}
+				button onClick={e=>handleClick(e,index)}
+			>
+				<ListItemAvatar>
+					<Avatar src={item.photoURL}/>
+				</ListItemAvatar>
+				<ListItemText>
+					{item.id}
+				</ListItemText>
+			</ListItem>
+		))
+		:
+		<ListItem>ボットが見つかりません</ListItem>;
+
+
+	
+
 
 	return (
 		<Box className={classes.root} 
@@ -73,36 +80,38 @@ export default function DownloadDialog(props){
 			borderRadius={10}
 		>
 			<Box className={classes.items}>
-				<Typography variant="h4">
+				<Typography variant="h6">
 					チャットボットを選んでください
 				</Typography>
 			</Box>
-			<Box className={classes.items}
-				display="flex"
-				flexDirection="row"
-			>
-				<Box>
-					<SorterSelector
-						sorters={sorters}
-						sorterLabel={sorterLabel}
-						sortBy={sortBy}
-						handleChangeSortBy={handleChangeSortBy}
-					/>
-				</Box>
-				<Box>
-					<List dense={true}>
-						{botItems}
-					</List>
-				</Box>
-				<Box>
-					ここに選んだボットのavatarと名前
-				</Box>
-				<Box>
-					{props.message}
-					<Button>
-						ダウンロード
-					</Button>
-				</Box>
+			<Box className={classes.items}>
+				{props.sorterSelector }
+			</Box>
+			<Box className={classes.items}>
+				<List dense={true} >
+					{botItems}
+				</List>
+			</Box>
+			<Box className={classes.items}>
+				<Avatar className={classes.avatar} 
+					src={botIndex ? 
+						botList[botIndex].photoURL : 
+						'avatar/bot/blank.svg'} />
+				<Typography>
+					{botIndex ? 
+					botList[botIndex].displayName : 
+					'---'}
+				</Typography>
+			</Box>
+			<Box className={classes.items}>
+				{props.message}
+				<Button 
+					className={classes.wideButton} 
+					size="large"
+					disabled = {botIndex !== null}
+					onClick={handleDownload}>
+					ダウンロード
+				</Button>
 			</Box>
 		</Box>
 	)
