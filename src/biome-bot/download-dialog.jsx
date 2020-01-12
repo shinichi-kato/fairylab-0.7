@@ -33,23 +33,26 @@ const useStyles = makeStyles(theme => ({
 		width: 100,
 		height: 100
 	},
+	description:{
+		width:"100%",
+		height: 100,
+	}
 
 }));
 
 export default function DownloadDialog(props){
 	const classes = useStyles();
 	const [botIndex,setBotIndex] = useState(null);
+	const botList = props.botList;
 
 	function handleClick(e,index){
 		setBotIndex(index)
 	}
 
 	function handleDownload(){
-		props.hanleDownload(botList[botIndex])
+		props.handleDownload(botList[botIndex])
 	}
 	
-	const botList = props.botList;
-
 
 	const botItems = botList.length !== 0 ?
 		botList.map((item,index)=>(
@@ -92,23 +95,33 @@ export default function DownloadDialog(props){
 					{botItems}
 				</List>
 			</Box>
-			<Box className={classes.items}>
-				<Avatar className={classes.avatar} 
-					src={botIndex ? 
+			<Box className={classes.items}
+				display="flex"
+				flexDirection="row"
+			>
+				<Box>
+					<Avatar className={classes.avatar} 
+					src={botIndex !== null ?
+
 						botList[botIndex].photoURL : 
 						'avatar/bot/blank.svg'} />
-				<Typography>
-					{botIndex ? 
-					botList[botIndex].displayName : 
-					'---'}
-				</Typography>
+				</Box>
+				<Box className={classes.description}>
+					<Typography>
+						{botIndex !== null ? 
+						botList[botIndex].description : 
+						''}
+					</Typography>
+				</Box>
+				
 			</Box>
+
 			<Box className={classes.items}>
 				{props.message}
 				<Button 
 					className={classes.wideButton} 
 					size="large"
-					disabled = {botIndex !== null}
+					disabled = {botIndex === null}
 					onClick={handleDownload}>
 					ダウンロード
 				</Button>

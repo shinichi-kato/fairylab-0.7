@@ -56,7 +56,7 @@ function setSampleBot(firebase,firestoreRef){
 		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 		description: '挨拶を返すボットです',
 		published : true,
-		parts: JSON.stringify(["greeeting"]),
+		parts: JSON.stringify(["greeting"]),
 		likeCount:0,
 		memory: JSON.stringify({}),
 	});
@@ -167,6 +167,8 @@ function reducer(state,action){
 	}
 }
 
+
+
 export default function BotProvider(props){
 	/*
 		チャットボットクラスBiomeBotが利用するパラメータのI/O
@@ -208,16 +210,17 @@ export default function BotProvider(props){
 					const d=item.data();
 					result.push({
 						id : item.id,
-						displayName : d.displayName,
+						displayName : item.id,	//仮の名前としてid名を使用
 						photoURL : d.photoURL,
 						creatorUID : d.creatorUID,
+						published : d.published,
+						description: d.description,
 						timestamp : d.timestamp,
-						parts : d.parts,
+						parts : JSON.parse(d.parts),
 						memory: {},
 					})
 				})
 				setBotList(result);
-				console.log(result);
 
 			}).catch(error=>{
 				setMessage(error)
@@ -230,23 +233,24 @@ export default function BotProvider(props){
 	function handleDownload(settings){
 		dispatch({type:'setParam',dict:settings})
 		biomeBot.setParam(settings);
-		loadParts();
-		
+		const botRef=firestoreRef.collection('bot').doc(settings.id);
+		loadParts(botRef,settings.parts);
+		setShowDownload(false);
 	}
 
-	function loadParts(){
+	function loadParts(botRef,parts){
 
 		// 各パートのパラメータを取得し記憶。
-		
-		for(let part of state.parts){
-			let fsRef = firestoreRef
+		for(let part of parts){
+			let fsRef = botRef
 				.collection('part').doc(part);
 
 			fsRef.get().then(doc=>{
 				if(doc.exists){
 					let data = doc.data();
+					data.name = part;
 					dispatch({type:'setPart',dict:data});
-					biomeBot.setPart(data);
+					biomeBot.setPart(part,data);
 					
 				}else{
 					setMessage(`パート${part} がサーバーにありませんでした`)
@@ -294,10 +298,12 @@ export default function BotProvider(props){
 				fsRef.get().then(doc=>{
 					if(doc.exists){
 						let data = doc.data();
-						// 最新版かどうかチェックしていない
+						// 最新版かどうかはチェックしていない
+						// 1回readすることに変わりない
 						dispatch({type:'setParam', dict:data});
+						console.log("data=",data)
 						biomeBot.setParam(data);
-						loadParts();
+						loadParts(fsRef,data.parts);
 					
 
 					}else{
@@ -341,6 +347,7 @@ export default function BotProvider(props){
 					fetchBotList={fetchBotList}
 					handleDownload={handleDownload}
 					handleSetSampleBot={handleSetSampleBot}
+					handleChangeBotName={handleChangeBotName}
 				/>
 				:
 				props.children

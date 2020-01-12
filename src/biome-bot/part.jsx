@@ -4,6 +4,8 @@ export default class Part {
 		this.availability = dict.availability;
 		this.triggerLevel = dict.triggerLevel;
 		this.retention = dict.retention;
-		this.dict = [...dict.dict];
+		this.dict = typeof dict.dict === "string" ?
+			JSON.parse(dict.dict) : dict.dict;
+		console.log("dict=",this.dict)
 	}
 }
