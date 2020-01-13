@@ -107,11 +107,17 @@ export default function DownloadDialog(props){
 						'avatar/bot/blank.svg'} />
 				</Box>
 				<Box className={classes.description}>
-					<Typography>
+					<Typography variant="subtitle2">作者：
+						{botIndex !== null ?
+						botList[botIndex].creatorName :
+						 ''}
+					</Typography>
+					<Typography variant="body1">
 						{botIndex !== null ? 
 						botList[botIndex].description : 
 						''}
 					</Typography>
+
 				</Box>
 				
 			</Box>

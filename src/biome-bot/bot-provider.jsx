@@ -53,6 +53,7 @@ function setSampleBot(firebase,firestoreRef){
 		displayName:'あいさつボット',
 		photoURL: 'avatar/bot/crystal/blueCrystal.svg',
 		creatorUID: null,
+		creatorName:"system",
 		timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 		description: '挨拶を返すボットです',
 		published : true,
@@ -83,6 +84,7 @@ function initialState(){
 		displayName : localStorage.getItem('bot.displayName') || 'noname',
 		photoURL : localStorage.getItem('bot.photoURL') || '',
 		creatorUID : localStorage.getItem('bot.creatorUID') || null,
+		creatorName : localStorage.getItem('bot.creatorName') || '',
 		timestamp : localStorage.getItem('bot.timestamp') || '',
 		published : localStorage.getItem('bot.published') || false,
 		description: localStorage.getItem('bot.description') || "",
@@ -128,6 +130,7 @@ function reducer(state,action){
 			localStorage.setItem('bot.displayName',dict.displayName);
 			localStorage.setItem('bot.photoURL',dict.photoURL);
 			localStorage.setItem('bot.creatorUID',dict.creatorUID);
+			localStorage.setItem('bot.creatorName',dict.creatorName);
 			localStorage.setItem('bot.description',dict.description);
 			localStorage.setItem('bot.published',dict.published);
 			localStorage.setItem('bot.timestamp',dict.timestamp);
@@ -213,6 +216,7 @@ export default function BotProvider(props){
 						displayName : item.id,	//仮の名前としてid名を使用
 						photoURL : d.photoURL,
 						creatorUID : d.creatorUID,
+						creatorName : d.creatorName,
 						published : d.published,
 						description: d.description,
 						timestamp : d.timestamp,
@@ -300,8 +304,8 @@ export default function BotProvider(props){
 						let data = doc.data();
 						// 最新版かどうかはチェックしていない
 						// 1回readすることに変わりない
+						data.id=doc.id;
 						dispatch({type:'setParam', dict:data});
-						console.log("data=",data)
 						biomeBot.setParam(data);
 						loadParts(fsRef,data.parts);
 					
@@ -332,6 +336,7 @@ export default function BotProvider(props){
   return (
 		<BotContext.Provider value={{
 			message:message,
+			state:state,
 		}}>
 			{showDownload ?
 				<DownloadDialog 
@@ -347,7 +352,6 @@ export default function BotProvider(props){
 					fetchBotList={fetchBotList}
 					handleDownload={handleDownload}
 					handleSetSampleBot={handleSetSampleBot}
-					handleChangeBotName={handleChangeBotName}
 				/>
 				:
 				props.children
