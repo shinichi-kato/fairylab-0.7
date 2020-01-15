@@ -165,6 +165,7 @@ function reducer(state,action){
 				botState: 'ready'
 			}
 		}
+
 		default:
 			throw new Error(`invalid action ${action.type}`);
 	}
@@ -174,9 +175,12 @@ function reducer(state,action){
 
 export default function BotProvider(props){
 	/*
-		チャットボットクラスBiomeBotが利用するパラメータのI/O
+		チャットボットクラスBiomeBotはパラメータ、パート、辞書を利用する。
+		全データはfirestoreに保存され、BotProviderがI/Oを提供する。
+		また同じデータはlocalStorageにも保存され次回起動時に状態を保存する。
+		
 	*/
-	const firestoreRef = props.firestore;
+	const {firebase,firestoreRef} = props;
 	const [state,dispatch] = useReducer(reducer,initialState());
 	const [message,setMessage] = useState("");
 	const [botList,setBotList] = useState([]);
@@ -267,7 +271,44 @@ export default function BotProvider(props){
 		}
 	}
 
+	function handleSave(settings,upload){
 
+		const newSettings = {
+
+			dispalyName:settings.displayName,
+			photoURL:settings.photoURL,
+			creatorUID:settings.creatorUID,
+			creatorName:settings.creatorName,
+			timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+			description:settings.description,
+			published:settings.published,
+			parts:JSON.stringify(settings.parts),
+			likeCount:settings.likeCount,
+			memory:JSON.stringify({}),
+
+		};
+		
+		dispatch({type:'setParam',dict:newSettings});
+		setMessage(`このデバイスに ${newSettings.id} を保存しました`)
+
+		if(upload){
+			let fsBotRef = firestoreRef.collection('bot').doc(settings.id);
+			fsBotRef.get().then(doc=>{
+				if(doc.exists){
+					let data =doc.data();
+					if(data.creatorUID === newSettings.creatorUID){
+						// すでに同じ型式のデータが存在する場合、creatorUIDが自分と同じであれば
+						// 上書きを実行する。そうでなければ上書き禁止メッセージを送る
+						setMessage(`${newSettings.id} をアップロードしました`)
+					}else{
+						setMessage(`他のユーザの${data.id}が存在しています。型式名を変えてください`)
+					}
+				}
+			})
+			fsBotRef.set(newSettings);
+	
+		}
+	}
 
 
 	useEffect(()=>{
@@ -302,13 +343,21 @@ export default function BotProvider(props){
 				fsRef.get().then(doc=>{
 					if(doc.exists){
 						let data = doc.data();
-						// 最新版かどうかはチェックしていない
-						// 1回readすることに変わりない
-						data.id=doc.id;
-						dispatch({type:'setParam', dict:data});
-						biomeBot.setParam(data);
-						loadParts(fsRef,data.parts);
-					
+				
+						if(data.timestamp.toMillis > state.timestamp.toMillis){
+							// 型式が同じでローカルのほうが古い場合は
+							// 最新版をロード
+	
+							data = {
+								...data,
+								id:doc.id,
+								parts:JSON.parse(data.parts)
+							};
+
+							dispatch({type:'setParam', dict:data});
+							biomeBot.setParam(data);
+							loadParts(fsRef,data.parts);
+						}
 
 					}else{
 						// ローカルにあるボットがまだアップロードされていない
@@ -351,7 +400,9 @@ export default function BotProvider(props){
 					botList={botList}
 					fetchBotList={fetchBotList}
 					handleDownload={handleDownload}
+					handleSave={handleSaveAndUpload}
 					handleSetSampleBot={handleSetSampleBot}
+					handleClearMessage={setMessage("")}
 				/>
 				:
 				props.children

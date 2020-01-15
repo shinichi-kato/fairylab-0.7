@@ -68,7 +68,7 @@ export default function App() {
       >
         <BotProvider 
           firebase={firebase}
-          firestore={firestore}
+          firestoreRef={firestore}
         >
           <Main />
         </BotProvider>

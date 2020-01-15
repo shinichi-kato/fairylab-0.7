@@ -5,6 +5,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 
 import UserState from './user-state.jsx';
+import BotState from './bot-state.jsx';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -47,12 +48,13 @@ export default function Dashboard(props){
 			<Box flexGrow={1}
 				display="flex"
 				flexDirection="row"
+				justifyContent="space-around"
 			>
 				<Box>
 					<UserState />
 				</Box>
 				<Box>
-					BotState
+					<BotState />
 				</Box>
 			</Box>
 			<Box 
