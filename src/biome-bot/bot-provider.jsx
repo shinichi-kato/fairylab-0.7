@@ -400,7 +400,7 @@ export default function BotProvider(props){
 					botList={botList}
 					fetchBotList={fetchBotList}
 					handleDownload={handleDownload}
-					handleSave={handleSaveAndUpload}
+					handleSave={handleSave}
 					handleSetSampleBot={handleSetSampleBot}
 					handleClearMessage={setMessage("")}
 				/>

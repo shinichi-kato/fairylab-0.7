@@ -42,15 +42,15 @@ const useStyles = makeStyles(theme => createStyles({
 	},
 	textField: {
 		padding: "2px 4px",
-		backgroundColor:theme.palette.background.paper,
+		backgroundColor:"#E0E0E0",
 
 	},
 	readOnlyField:{
 		padding: theme.spacing(1),
-		backgroundColor:"#e0e0e0",	
+		backgroundColor:"#C0C0C0",	
 	},
 	wideButton:{
-		width: "80%",
+		width: "100%",
 	}
 }));
 
@@ -174,7 +174,8 @@ export default function ScriptEditor(props){
 				<Typography variant="body2">
 					チャットボットの公開状態
 				</Typography>
-				<ButtonGroup aria-label="publish">
+				<ButtonGroup aria-label="publish"
+					className={classes.wideButton}>
 					<Button
 						variant={state.published ? "outlined" : "contained"}
 						color={state.published ? "default" : "primary"}
@@ -261,7 +262,7 @@ export default function ScriptEditor(props){
 				<Button className={classes.wideButton}
 					variant="contained" color="primary"
 					size="large"
-					onClick={hanldeSaveAndUpload}
+					onClick={handleSaveAndUpload}
 				>
 					<UploadIcon/>アップロード＆このデバイスに保存
 				</Button>
