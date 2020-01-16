@@ -99,9 +99,9 @@ function initialState(){
 	for (let part of data.parts) {
 		let context = {};
 		context.type = localStorage.getItem(`bot.part.${part}.type`);
-		context.availability = localStorage.getItem(`bot.part.${part}.availability`);
-		context.triggerLevel = localStorage.getItem(`bot.part.${part}.triggerLevel`);
-		context.retention = localStorage.getItem(`bot.part.${part}.retention`);
+		context.availability = Number(localStorage.getItem(`bot.part.${part}.availability`));
+		context.triggerLevel = Number(localStorage.getItem(`bot.part.${part}.triggerLevel`));
+		context.retention = Number(localStorage.getItem(`bot.part.${part}.retention`));
 		context.dict = JSON.parse(localStorage.getItem(`bot.part.${part}.dict`));
 		partContext[part] = {...context};
 		biomeBot.setPart(context);

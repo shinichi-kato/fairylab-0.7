@@ -121,6 +121,30 @@ function reducer(state,action){
 				published : action.published,
 			}
 		}
+		
+		case 'appendNewPart' : {
+			// 新しく使われていないパート名を生成
+			// partsに現れる数値の最大値+1
+			const partstr = state.parts.join(',');
+			const nums = partstr.match(/[0-9]+/g) || [0];
+			const max = Math.max.apply(null,nums);
+			const newPartName=`Part-${max+1}`;
+
+			return {
+				...state,
+				parts:[...state.parts,newPartName],
+				partContext:{
+					...state.partContext,
+					[newPartName]:{
+						type:"sensor",
+						availability: 1.0,
+						triggerLevel: 0.01,
+						retention: 0.9,
+						dict:[],
+					}
+				}
+			}
+		}
 		default : 
 			throw new Error(`invalid action ${action.type}`);
 	}
@@ -147,6 +171,15 @@ export default function ScriptEditor(props){
 		bot.clearMessage();
 		props.toParentPage();
 	}
+
+
+	function handleAddPart(e){ dispatch({type:'appendNewPart'}); }
+
+	function handleRaisePart(index){}
+	function handleDropPart(index){}
+
+
+	const fieldUnsatisfied = state.displayName === "" || state.id === "";
 
 	return (
 		<Grid container
@@ -236,7 +269,7 @@ export default function ScriptEditor(props){
 						placeholder="例：このボットは挨拶を返します"
 						fullWidth
 						multiline
-						rows={5}
+						maxRows={5}
 						value={state.description}
 						onChange={e=>dispatch({
 							type:'changeDescription',
@@ -252,16 +285,27 @@ export default function ScriptEditor(props){
 				<PartsList
 					parts={state.parts}
 					partContext={state.partContext}
+					handleAddPart={handleAddPart}
+					handleRaisePart={handleRaisePart}
+					handleDropPart={handleDropPart}
 				/>
+				
 			</Grid>
 
 			<Grid item xs={12}>
 				{bot.message}
+				{state.displayName === "" && 
+					<Typography color="error">チャットボットの名前を入力してください</Typography>
+				}
+				{state.id === "" &&
+					<Typography color="error">チャットボットの型式を入力してください</Typography>
+				}
 			</Grid>
 			<Grid item xs={12}>
 				<Button className={classes.wideButton}
 					variant="contained" color="primary"
 					size="large"
+					disabled = {fieldUnsatisfied}
 					onClick={handleSaveAndUpload}
 				>
 					<UploadIcon/>アップロード＆このデバイスに保存
@@ -271,6 +315,7 @@ export default function ScriptEditor(props){
 				<Button className={classes.wideButton}
 					variant="outlined"
 					size="large"
+					disabled = {fieldUnsatisfied}
 					onClick={handleSave}
 				>
 					<SaveIcon/>このデバイスに保存
