@@ -6,6 +6,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+
 
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
@@ -14,16 +17,15 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 
 
-const partTypeIcons={
-  'sensor':<Tooltip title="sensor"></Tooltip>,
-}
+
 
 
 
 const useStyles = makeStyles(theme => createStyles({
 	root: {
-    backgroundColor:theme.palette.background.paper,
-		padding: theme.spacing(2),
+    height: 360,
+    maxHeight: 500,
+    overflowY: "scroll",
 	},
 	textField: {
 		padding: "2px 4px",
@@ -37,18 +39,18 @@ const useStyles = makeStyles(theme => createStyles({
   part:{
     backgroundColor:"#e0e0e0",
     width: "100%",
-    marginBottom: theme.spacing(1),
+    
   },
   caption:{
     opacity:0.4,
   },
   progress:{
-    width: 80,
+    width: 60,
     padding: theme.spacing(1),
   },
   newPart:{
     border: "dashed 4px #cccccc",
-    width: "100%",
+    width: "95%",
   }
 
 }));
@@ -101,75 +103,77 @@ function PartCard(props){
   const classes = useStyles();
 
   return(
-    <Box display="flex"
-      flexDirection="row"
-      className={classes.part}
-      key={name}
-      >
-        <Box alignSelf="center">
-          <IconButton
-            size="small"
-            onClick={e=>props.handleRaisePart(index)}
-          >
-            <ArrowUpwardIcon/>
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={e=>props.handleDropPart(index)}
-          >
-            <ArrowDownwardIcon/>
-          </IconButton>
-        </Box>
-        <Box 
-          flexGrow={1} 
-          display="flex" 
-          flexDirection="column"
+    <ListItem key={name}>
+      <Box display="flex"
+        flexDirection="row"
+        className={classes.part}
+        key={name}
         >
-          <Box className={classes.progress}>
-            {name}
+          <Box alignSelf="center">
+            <IconButton
+              size="small"
+              onClick={e=>props.handleRaisePart(index)}
+            >
+              <ArrowUpwardIcon/>
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={e=>props.handleDropPart(index)}
+            >
+              <ArrowDownwardIcon/>
+            </IconButton>
           </Box>
-          <Box display="flex" flexDirection="row">
+          <Box 
+            flexGrow={1} 
+            display="flex" 
+            flexDirection="column"
+          >
             <Box className={classes.progress}>
-              <ParameterTooltip 
-                title={`稼働率(${availability.toFixed(2)})`} 
-                arrow>
-                <AvailabilityProgress 
-                  variant="determinate"
-                  value={availability*100}
-                />
-              </ParameterTooltip>
+              {name}
             </Box>
-            <Box className={classes.progress}>
-              <ParameterTooltip 
-                title={`トリガーレベル(${triggerLevel.toFixed(2)})`} 
-                arrow>
-                <TriggerLevelProgress
-                  variant="determinate" value={triggerLevel*100}
-                />
-              </ParameterTooltip>
-            </Box>
-             <Box className={classes.progress}>
+            <Box display="flex" flexDirection="row">
+              <Box className={classes.progress}>
                 <ParameterTooltip 
-                  title={`維持率(${retention.toFixed(2)})`} 
+                  title={`起動率(${availability.toFixed(2)})`} 
                   arrow>
-                  <RetentionProgress 
-                    variant="determinate" value={retention*100}
+                  <AvailabilityProgress 
+                    variant="determinate"
+                    value={availability*100}
                   />
                 </ParameterTooltip>
+              </Box>
+              <Box className={classes.progress}>
+                <ParameterTooltip 
+                  title={`感度(${triggerLevel.toFixed(2)})`} 
+                  arrow>
+                  <TriggerLevelProgress
+                    variant="determinate" value={triggerLevel*100}
+                  />
+                </ParameterTooltip>
+              </Box>
+              <Box className={classes.progress}>
+                  <ParameterTooltip 
+                    title={`継続率(${retention.toFixed(2)})`} 
+                    arrow>
+                    <RetentionProgress 
+                      variant="determinate" value={retention*100}
+                    />
+                  </ParameterTooltip>
+              </Box>
             </Box>
           </Box>
-        </Box>
-        <Box alignSelf="center">
-          <IconButton 
-            size="small">
-            <EditIcon/>
-          </IconButton>
-          <IconButton
-            size="small">
-            <DeleteIcon/>
-          </IconButton>
-        </Box>
-    </Box>
+          <Box alignSelf="center">
+            <IconButton 
+              size="small">
+              <EditIcon/>
+            </IconButton>
+            <IconButton
+              size="small">
+              <DeleteIcon/>
+            </IconButton>
+          </Box>
+      </Box>
+    </ListItem>
   )
 }
 
@@ -178,23 +182,28 @@ function NewPartCard(props){
   const classes=useStyles();
 
   return (
-    <Box display="flex"
-      flexDirection="row"
-      justifyContent="center"
-      className={classes.newPart}>
-      <Box alignSelf="center">
-        <Button
-          size="large"
-          onClick={props.handleAddPart}
-        >
-          <AddIcon/>パートを追加
-        </Button>
+    <ListItem key="__new__">
+      <Box display="flex"
+        flexDirection="row"
+        justifyContent="center"
+        className={classes.newPart}
+        alignSelf="center">
+        <Box alignSelf="center">
+          <Button
+            size="large"
+            onClick={props.handleAddPart}
+          >
+            <AddIcon/>パートを追加
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </ListItem>
+
   )
 }
 
 export default function PartsList(props){
+  const classes=useStyles();
   const {parts,partContext} = props;
   const partItems = parts.map((part,index)=>(
     <PartCard index={index} name={part} {...partContext[part]}
@@ -204,9 +213,9 @@ export default function PartsList(props){
   ));
 
   return (
-    <Box display="flex" flexDirection="column">
+    <List className={classes.root}>
       {partItems}
       <NewPartCard handleAddPart={props.handleAddPart}/>
-    </Box>
+    </List>
   )
 }

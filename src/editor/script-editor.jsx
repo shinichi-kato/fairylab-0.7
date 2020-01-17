@@ -145,6 +145,37 @@ function reducer(state,action){
 				}
 			}
 		}
+
+		case 'raisePart':{
+			const i = action.index
+			if(i === 0){ return state; }
+			
+			// index-1番目とindex番目を入れ替える
+			let p = [...state.parts];
+			const buf = p.slice(i-1,i+1);
+			p.splice(i-1,2,buf[1],buf[0]);
+			
+			return {
+				...state,
+				parts:p
+			}
+		}
+
+		case 'dropPart':{
+			const i = action.index;
+			if(i === state.parts.length-1){return state;}
+
+			// index番目とindex+1番目を入れ替える
+			let p = [...state.parts];
+			const buf = p.slice(i,i+2);
+			p.splice(i,2,buf[1],buf[0]);
+
+			return {
+				...state,
+				parts:p
+			}
+		}
+
 		default : 
 			throw new Error(`invalid action ${action.type}`);
 	}
@@ -175,8 +206,13 @@ export default function ScriptEditor(props){
 
 	function handleAddPart(e){ dispatch({type:'appendNewPart'}); }
 
-	function handleRaisePart(index){}
-	function handleDropPart(index){}
+	function handleRaisePart(index){ 
+		dispatch({type:'raisePart',index:index});
+	}
+
+	function handleDropPart(index){
+		dispatch({type:'dropPart',index:index});
+	}
 
 
 	const fieldUnsatisfied = state.displayName === "" || state.id === "";
@@ -269,7 +305,7 @@ export default function ScriptEditor(props){
 						placeholder="例：このボットは挨拶を返します"
 						fullWidth
 						multiline
-						maxRows={5}
+						rowsMax={5}
 						value={state.description}
 						onChange={e=>dispatch({
 							type:'changeDescription',
