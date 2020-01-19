@@ -19,7 +19,7 @@ export default class BiomeBot{
     パートには以下の内容が含まれる
     type : パートの型
     availability : 稼働率（パートが動作する確率,0-1)
-    triggerLevel : トリガーレベル（辞書のスコアがこの点を超えたら採用）
+    sensitivity : トリガーレベル（辞書のスコアがこの点を超えたら採用）
     retention : 維持率（1-retentionの確率でこのパートがpartsの最後尾に移動)
     dict : 辞書
 

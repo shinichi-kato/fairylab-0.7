@@ -5,6 +5,8 @@ import SorterSelector from './sorter-selector.jsx';
 
 import {AuthContext} from '../authentication/auth-provider.jsx';
 
+import {getStrByteSize} from './getStrByteSize.jsx';
+
 const biomeBot = new BiomeBot();
 const BOT_LIST_MAX_LEN=20;
 
@@ -65,7 +67,7 @@ function setSampleBot(firebase,firestoreRef){
 	fsBotRef.collection('part').doc('greeting').set({
 		type: "sensor",
 		availability: 1,
-		triggerLevel: 0.1,
+		sensitivity: 0.1,
 		retention: 1,
 		dict:JSON.stringify([
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
@@ -100,9 +102,12 @@ function initialState(){
 		let context = {};
 		context.type = localStorage.getItem(`bot.part.${part}.type`);
 		context.availability = Number(localStorage.getItem(`bot.part.${part}.availability`));
-		context.triggerLevel = Number(localStorage.getItem(`bot.part.${part}.triggerLevel`));
+		context.sensitivity = Number(localStorage.getItem(`bot.part.${part}.sensitivity`));
 		context.retention = Number(localStorage.getItem(`bot.part.${part}.retention`));
-		context.dict = JSON.parse(localStorage.getItem(`bot.part.${part}.dict`));
+		context.dict = localStorage.getItem(`bot.part.${part}.dict`);
+		context._dictByteSize = getStrByteSize(context.dict);
+		context.dict = JSON.parse(context.dict); 
+
 		partContext[part] = {...context};
 		biomeBot.setPart(context);
 	}
@@ -150,10 +155,10 @@ function reducer(state,action){
 			const name = action.dict.name;
 			localStorage.setItem(`bot.part.${name}.type`,dict.type);
 			localStorage.setItem(`bot.part.${name}.availability`,dict.availability);
-			localStorage.setItem(`bot.part.${name}.triggerLevel`,dict.triggerLevel);
+			localStorage.setItem(`bot.part.${name}.sensitivity`,dict.sensitivity);
 			localStorage.setItem(`bot.part.${name}.retention`,dict.retention);
 			localStorage.setItem(`bot.part.${name}.dict`,JSON.stringify(dict.dict));
-
+			// _dictByteSizeは毎回計算するので保存はしない。
 			biomeBot.setPart(dict);
 
 			return {
@@ -225,7 +230,9 @@ export default function BotProvider(props){
 						description: d.description,
 						timestamp : d.timestamp,
 						parts : JSON.parse(d.parts),
+						likeCount : d.likeCount,
 						memory: {},
+						
 					})
 				})
 				setBotList(result);
@@ -283,7 +290,6 @@ export default function BotProvider(props){
 			description:settings.description,
 			published:settings.published,
 			parts:JSON.stringify(settings.parts),
-			likeCount:settings.likeCount,
 			memory:JSON.stringify({}),
 
 		};

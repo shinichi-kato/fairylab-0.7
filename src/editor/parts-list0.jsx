@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 
+
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -16,21 +17,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 
 
-const fireStoreByteMaxSize = 1048487;
-const sizeDisplayFactor = 100 / Math.sqrt(fireStoreByteMaxSize);
 
-function dictSizeScale(size){
-  /*
-    辞書のサイズを0-100でprogressバーに表示するための換算。
-    サイズはsqrtスケールとし、fireStoreのバイト型が
-    最大 1,048,487 バイト（1 MiB～89 バイト）
-    であるため、これが100となるように換算する。
-    つまり    
-    value={Math.sqrt(size)/Math.sqrt(fireStoreByteMaxSize)*100
-    となる
-  */
-    return Math.sqrt(size)*sizeDisplayFactor;
-}
 
 
 
@@ -58,7 +45,7 @@ const useStyles = makeStyles(theme => createStyles({
     opacity:0.4,
   },
   progress:{
-    width: 120,
+    width: 60,
     padding: theme.spacing(1),
   },
   newPart:{
@@ -68,6 +55,41 @@ const useStyles = makeStyles(theme => createStyles({
 
 }));
 
+const AvailabilityProgress = withStyles({
+  root: {
+    height: 14,
+    backgroundColor: '#999999',
+    borderRadius: 6,
+  },
+  bar: {
+    backgroundColor: '#01579b',
+    borderRadius: 6,
+  }
+})(LinearProgress);
+
+const sensitivityProgress = withStyles({
+  root: {
+    height: 14,
+    backgroundColor: '#999999',
+    borderRadius: 6,
+  },
+  bar: {
+    backgroundColor: '#2e7d32',
+    borderRadius: 6,
+  }
+})(LinearProgress);
+
+const RetentionProgress = withStyles({
+  root: {
+    height: 14,
+    backgroundColor: '#999999',
+    borderRadius: 6,
+  },
+  bar: {
+    backgroundColor: '#d84315',
+    borderRadius: 6,
+  }
+})(LinearProgress);
 
 const DictSizeProgress = withStyles({
   root: {
@@ -89,7 +111,7 @@ const ParameterTooltip = withStyles({
 
 
 function PartCard(props){
-  const {name,_dictByteSize,index} = props;
+  const {name,availability,sensitivity,retention,index} = props;
   const classes = useStyles();
 
   return(
@@ -122,24 +144,38 @@ function PartCard(props){
               {name}
             </Box>
             <Box display="flex" flexDirection="row">
-              <Box>
-                辞書
+              <Box className={classes.progress}>
+                <ParameterTooltip 
+                  title={`起動率(${availability.toFixed(2)})`} 
+                  arrow>
+                  <AvailabilityProgress 
+                    variant="determinate"
+                    value={availability*100}
+                  />
+                </ParameterTooltip>
               </Box>
               <Box className={classes.progress}>
                 <ParameterTooltip 
-                  title={`${_dictByteSize.toFixed(2)} バイト`} 
+                  title={`感度(${sensitivity.toFixed(2)})`} 
                   arrow>
-                  <DictSizeProgress 
-                    variant="determinate"
-                    value={dictSizeScale(_dictByteSize)}
+                  <sensitivityProgress
+                    variant="determinate" value={sensitivity*100}
                   />
                 </ParameterTooltip>
+              </Box>
+              <Box className={classes.progress}>
+                  <ParameterTooltip 
+                    title={`継続率(${retention.toFixed(2)})`} 
+                    arrow>
+                    <RetentionProgress 
+                      variant="determinate" value={retention*100}
+                    />
+                  </ParameterTooltip>
               </Box>
             </Box>
           </Box>
           <Box alignSelf="center">
             <IconButton 
-              onClick={e=>props.handleEditPart(name)}
               size="small">
               <EditIcon/>
             </IconButton>
@@ -185,7 +221,6 @@ export default function PartsList(props){
     <PartCard index={index} name={part} {...partContext[part]}
       handleRaisePart={props.handleRaisePart}
       handleDropPart={props.handleDropPart}
-      handleEditPart={props.handleEditPart}
     />
   ));
 

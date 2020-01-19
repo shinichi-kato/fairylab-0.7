@@ -10,9 +10,12 @@ import UploadIcon from '@material-ui/icons/CloudUploadOutlined';
 import SaveIcon from '@material-ui/icons/SaveAlt';
 
 import PartsList from './parts-list.jsx';
+import PartEditor from './part-editor.jsx';
 
 import {BotContext} from '../biome-bot/bot-provider.jsx';
 import {AuthContext} from '../authentication/auth-provider.jsx';
+
+import {getStrByteSize} from '../biome-bot/getStrByteSize.jsx';
 
 function toTimestampString(timestamp){
 	/*
@@ -109,12 +112,7 @@ function reducer(state,action){
 				creatorId: action.user.UID,					
 			}
 		}
-		case 'changePartsOrder' : {
-			return {
-				...state,
-				parts:[...action.parts],
-			}
-		}
+
 		case 'setPublished' : {
 			return {
 				...state,
@@ -138,9 +136,10 @@ function reducer(state,action){
 					[newPartName]:{
 						type:"sensor",
 						availability: 1.0,
-						triggerLevel: 0.01,
+						sensitivity: 0.01,
 						retention: 0.9,
 						dict:[],
+						_dictByteSize:0,
 					}
 				}
 			}
@@ -176,6 +175,56 @@ function reducer(state,action){
 			}
 		}
 
+		case 'updatePart':{
+			const context = action.context;
+			const size = getStrByteSize(
+				JSON.stringify(context.dict));
+
+			let parts = state.parts;
+			if(context._isNameChanged){
+				// part名が変わっていたら置き換え
+				const pos = parts.indexOf(context._originalName);
+				if(pos === -1){
+					throw Error(`part name ${action.name} invalid`);
+				}
+
+			parts.splice(pos,1,context.name);
+			}
+			
+			return {
+				...state,
+				parts:[...parts],
+				partContext:{
+					...state.partContext,
+					[action.name]:{
+						type:context.type,
+						availability: context.availability,
+						sensitivity: context.sensitivity,
+						retention: context.retention,
+						dict:context.dict,
+						_dictByteSize:size,		
+					}
+				}
+	
+			}
+		}
+
+		case 'replacePartName' :{
+			let parts = state.parts;
+			const pos = parts.indexOf(action.src);
+			if(pos === -1){
+				return state;
+			}
+
+			parts.splice(pos,1,action.dest);
+
+			return {
+				...state,
+				parts:parts
+			}
+
+		}
+
 		default : 
 			throw new Error(`invalid action ${action.type}`);
 	}
@@ -187,6 +236,7 @@ export default function ScriptEditor(props){
 	const auth = useContext(AuthContext);
 	const [state,dispatch] = useReducer(reducer,initialState(bot.state));
 	const [saved,setSaved] = useState(false);
+	const [editingPart,setEditingPart] = useState(null);
 
 	function handleSave(e){
 		bot.handleSave(state);
@@ -214,8 +264,27 @@ export default function ScriptEditor(props){
 		dispatch({type:'dropPart',index:index});
 	}
 
+	function handleEditPart(name){
+		setEditingPart(name);
+	}
+
+	function handleUpdatePart(name,context){
+		dispatch({type:'updatePart',name:name,context:context});
+		setEditingPart(null);
+	}
+
 
 	const fieldUnsatisfied = state.displayName === "" || state.id === "";
+
+	if(editingPart !== null){
+		return (
+			<PartEditor 
+				handleUpdatePart={handleUpdatePart}
+				name={editingPart}
+				context={state.partContext[editingPart]}
+				handleClose={()=>setEditingPart(null)} />
+		)
+	}
 
 	return (
 		<Grid container
@@ -324,6 +393,8 @@ export default function ScriptEditor(props){
 					handleAddPart={handleAddPart}
 					handleRaisePart={handleRaisePart}
 					handleDropPart={handleDropPart}
+					handleEditPart={handleEditPart}
+					handleUpdatePart={handleUpdatePart}
 				/>
 				
 			</Grid>

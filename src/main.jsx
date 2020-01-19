@@ -26,6 +26,7 @@ const parentPage={
 export default function Main(props){
 	const classes = useStyles();
 	const [currentPage,setCurrentPage] = useState('Dashboard');
+	const [currentPart,setCurrerntPart] = useState('');
 
 	function handleToParentPage(){
 		if (currentPage in parentPage){
@@ -33,6 +34,11 @@ export default function Main(props){
 		}else{
 			throw new Error(`page "${currentPage}" had no valid parent.`)
 		}
+	}
+
+	function handleToPartEditor(name){
+		setCurrerntPart(name);
+
 	}
 
 
@@ -52,6 +58,7 @@ export default function Main(props){
 			<ScriptEditor 
 				handleClose={handleToParentPage}
 				toParentPage={handleToParentPage}
+				toPartEditor={handleToPartEditor}
 			/>
 		),
 	} 
