@@ -69,11 +69,11 @@ function setSampleBot(firebase,firestoreRef){
 		availability: 1,
 		sensitivity: 0.1,
 		retention: 1,
-		dict:JSON.stringify([
+		dict:`[
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
 			[["ばいばい","さようなら"],["ばいば〜い"]],
 			[["怒りっぽいと言われた"],["そうだったんですか。。。\n情熱的なんですね。"]]
-		]),
+		]`,
 	});
 
 	
@@ -90,23 +90,27 @@ function initialState(){
 		timestamp : localStorage.getItem('bot.timestamp') || '',
 		published : localStorage.getItem('bot.published') || false,
 		description: localStorage.getItem('bot.description') || "",
-		parts : JSON.parse(localStorage.getItem('bot.parts')) || [],
+		parts : localStorage.getItem('bot.parts') || "",
 		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
 	};
 
 	biomeBot.setParam(data);
 
-	let partContext = {};
+	let partContext = new Object();
 	
 	for (let part of data.parts) {
-		let context = {};
-		context.type = localStorage.getItem(`bot.part.${part}.type`);
-		context.availability = Number(localStorage.getItem(`bot.part.${part}.availability`));
-		context.sensitivity = Number(localStorage.getItem(`bot.part.${part}.sensitivity`));
-		context.retention = Number(localStorage.getItem(`bot.part.${part}.retention`));
-		context.dict = localStorage.getItem(`bot.part.${part}.dict`);
+		let context = {
+			type : localStorage.getItem(`bot.part.${part}.type`) || "",
+			availability : Number(localStorage.getItem(`bot.part.${part}.availability`)) || 0,
+			sensitivity : Number(localStorage.getItem(`bot.part.${part}.sensitivity`)) || 0,
+			retention : Number(localStorage.getItem(`bot.part.${part}.retention`)) || 0,
+			dict : localStorage.getItem(`bot.part.${part}.dict`) || "[]",
+			_dictByteSize : 0,
+		};
+
 		context._dictByteSize = getStrByteSize(context.dict);
-		context.dict = JSON.parse(context.dict); 
+		context.dict = JSON.parse(context.dict);
+
 
 		partContext[part] = {...context};
 		biomeBot.setPart(context);
@@ -139,7 +143,7 @@ function reducer(state,action){
 			localStorage.setItem('bot.description',dict.description);
 			localStorage.setItem('bot.published',dict.published);
 			localStorage.setItem('bot.timestamp',dict.timestamp);
-			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));
+			localStorage.setItem('bot.parts',dict.parts);
 			localStorage.setItem('bot.memory',JSON.stringify(dict.memory));
 
 			biomeBot.setParam(dict);
@@ -157,7 +161,7 @@ function reducer(state,action){
 			localStorage.setItem(`bot.part.${name}.availability`,dict.availability);
 			localStorage.setItem(`bot.part.${name}.sensitivity`,dict.sensitivity);
 			localStorage.setItem(`bot.part.${name}.retention`,dict.retention);
-			localStorage.setItem(`bot.part.${name}.dict`,JSON.stringify(dict.dict));
+			localStorage.setItem(`bot.part.${name}.dict`,dict.dict);
 			// _dictByteSizeは毎回計算するので保存はしない。
 			biomeBot.setPart(dict);
 
@@ -166,6 +170,8 @@ function reducer(state,action){
 				partContext:{
 					...state.partContext,
 					[name]:dict,
+					_dictByteSize:getStrByteSize(dict.dict),
+
 				},
 				botState: 'ready'
 			}
@@ -248,40 +254,46 @@ export default function BotProvider(props){
 	function handleDownload(settings){
 		dispatch({type:'setParam',dict:settings})
 		biomeBot.setParam(settings);
-		const botRef=firestoreRef.collection('bot').doc(settings.id);
-		loadParts(botRef,settings.parts);
+		loadParts(settings.id,settings.parts);
 		setShowDownload(false);
 	}
 
-	function loadParts(botRef,parts){
-
-		// 各パートのパラメータを取得し記憶。
-		for(let part of parts){
-			let fsRef = botRef
-				.collection('part').doc(part);
-
-			fsRef.get().then(doc=>{
-				if(doc.exists){
-					let data = doc.data();
-					data.name = part;
+	function loadParts(botId,parts){
+		/* 各パートのパラメータを取得し記憶する。
+			firestoreからの読み込みには時間がかかるため、この関数でのsetPartが処理される前に
+			UIの描画が先行する。UI側ではPartが更新される前のdefault状態でも動作するようにする。
+			それがうまく行かないとき、.get().then()が動作も応答もしないかのように見えるので注意。
+		*/
+		const query = firebase
+			.firestore()
+			.collection('bot')
+			.doc(botId)
+			.collection('part')
+			.get()
+			.then(querySnapshot=>{
+				querySnapshot.forEach(doc=>{
+					let data={
+						...doc.data(),
+						name:doc.id,
+					};
 					dispatch({type:'setPart',dict:data});
-					biomeBot.setPart(part,data);
-					
-				}else{
-					setMessage(`パート${part} がサーバーにありませんでした`)
-				}
+					biomeBot.setPart(doc.id,data);
+				});
 			})
 			.catch(error=>{
+				console.log(error);
 				setMessage(error);
 				setShowDownload(true);
 			})
-		}
 	}
+	
+
+	
 
 	function handleSave(settings,upload){
 
 		const newSettings = {
-
+			id:settings.id,
 			dispalyName:settings.displayName,
 			photoURL:settings.photoURL,
 			creatorUID:settings.creatorUID,
@@ -289,12 +301,18 @@ export default function BotProvider(props){
 			timestamp:firebase.firestore.FieldValue.serverTimestamp(),
 			description:settings.description,
 			published:settings.published,
-			parts:JSON.stringify(settings.parts),
-			memory:JSON.stringify({}),
+			parts:settings.parts,
+			memory:{},
 
 		};
 		
 		dispatch({type:'setParam',dict:newSettings});
+
+		for (let part of settings.parts){
+			dispatch({type:'setPart',dict:settings.partContext[part]});
+		}
+
+
 		setMessage(`このデバイスに ${newSettings.id} を保存しました`)
 
 		if(upload){
@@ -345,7 +363,7 @@ export default function BotProvider(props){
 				//    firebase上のデータ更新を確認し、最新版をロードしてコンパイル
 				let fsRef = firestoreRef
 					.collection('bot').doc(state.id);
-
+				console.log("loading")
 				fsRef.get().then(doc=>{
 					if(doc.exists){
 						let data = doc.data();
@@ -362,7 +380,7 @@ export default function BotProvider(props){
 
 							dispatch({type:'setParam', dict:data});
 							biomeBot.setParam(data);
-							loadParts(fsRef,data.parts);
+							loadParts(state.id,data.parts);
 						}
 
 					}else{
@@ -392,6 +410,7 @@ export default function BotProvider(props){
 		<BotContext.Provider value={{
 			message:message,
 			state:state,
+			handleSave:handleSave,
 		}}>
 			{showDownload ?
 				<DownloadDialog 
@@ -408,7 +427,7 @@ export default function BotProvider(props){
 					handleDownload={handleDownload}
 					handleSave={handleSave}
 					handleSetSampleBot={handleSetSampleBot}
-					handleClearMessage={setMessage("")}
+					handleClearMessage={()=>setMessage("")}
 				/>
 				:
 				props.children

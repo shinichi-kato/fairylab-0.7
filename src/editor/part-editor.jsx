@@ -104,6 +104,7 @@ export default function PartEditor(props){
   const [partDict,setPartDict] = useState(context.dict);
   const [editorMode,setEditorMode] = useState(true);
   
+  
 
   function handleUpdate(dict){
     props.handleUpdatePart(name,{
@@ -114,7 +115,7 @@ export default function PartEditor(props){
       _isNameChanged:state.isNameChange,
       _originalName:state.originalName,
       dict:dict,
-      _dictByteSize:getStrByteSize(JSON.strinigify(dict)),
+      _dictByteSize:getStrByteSize(dict),
     });
   }
 

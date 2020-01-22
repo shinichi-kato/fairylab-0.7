@@ -14,6 +14,7 @@ import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
+import Popover from '@material-ui/core/Popover';
 
 
 const fireStoreByteMaxSize = 1048487;
@@ -91,6 +92,15 @@ const ParameterTooltip = withStyles({
 function PartCard(props){
   const {name,_dictByteSize,index} = props;
   const classes = useStyles();
+  const [anchorEl,setAnchorEl] = useState(null);
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'delete-dialog' : undefined;
+
+  function handleClickDelete(index){
+    setAnchorEl(null);
+    props.handleDeletePart(index);
+  }
 
   return(
     <ListItem key={name}>
@@ -144,9 +154,23 @@ function PartCard(props){
               <EditIcon/>
             </IconButton>
             <IconButton
+              aria-describedby={id}
+              onClick={e=>setAnchorEl(e.currentTarget)}
               size="small">
               <DeleteIcon/>
             </IconButton>
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={()=>setAnchorEl(null)}
+              anchorOrigin={{vertical: 'bottom',horizontal:'left'}}
+
+            >
+              <Button onClick={()=>handleClickDelete(index)}>
+                削除
+              </Button>
+            </Popover>
           </Box>
       </Box>
     </ListItem>
@@ -186,6 +210,7 @@ export default function PartsList(props){
       handleRaisePart={props.handleRaisePart}
       handleDropPart={props.handleDropPart}
       handleEditPart={props.handleEditPart}
+      handleDeletePart={props.handleDeletePart}
     />
   ));
 

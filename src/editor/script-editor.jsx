@@ -201,7 +201,7 @@ function reducer(state,action){
 						availability: context.availability,
 						sensitivity: context.sensitivity,
 						retention: context.retention,
-						dict:context.dict,
+						dict:[...context.dict],
 						_dictByteSize:size,		
 					}
 				}
@@ -223,6 +223,15 @@ function reducer(state,action){
 				parts:parts
 			}
 
+		}
+
+		case 'deletePart': {
+			const parts = [...state.parts];
+			parts.splice(action.index,1);
+			return {
+				...state,
+				parts:parts
+			}
 		}
 
 		default : 
@@ -271,6 +280,10 @@ export default function ScriptEditor(props){
 	function handleUpdatePart(name,context){
 		dispatch({type:'updatePart',name:name,context:context});
 		setEditingPart(null);
+	}
+
+	function handleDeletePart(index){
+		dispatch({type:'deletePart',index:index});
 	}
 
 
@@ -395,6 +408,7 @@ export default function ScriptEditor(props){
 					handleDropPart={handleDropPart}
 					handleEditPart={handleEditPart}
 					handleUpdatePart={handleUpdatePart}
+					handleDeletePart={handleDeletePart}
 				/>
 				
 			</Grid>
