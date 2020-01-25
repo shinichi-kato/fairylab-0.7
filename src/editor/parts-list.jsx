@@ -37,8 +37,7 @@ function dictSizeScale(size){
 
 const useStyles = makeStyles(theme => createStyles({
 	root: {
-    height: 360,
-    maxHeight: 500,
+    height: 300,
     overflowY: "scroll",
 	},
 	textField: {
@@ -207,7 +206,6 @@ function NewPartCard(props){
 export default function PartsList(props){
   const classes=useStyles();
   const {parts,partContext} = props;
-  console.log("parts=",parts)
   const partItems = parts.map((part,index)=>(
     <PartCard index={index} name={part} {...partContext[part]}
       handleRaisePart={props.handleRaisePart}

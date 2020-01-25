@@ -19,8 +19,14 @@ const useStyles = makeStyles(theme => ({
 		padding:theme.spacing(1),
 		width: "80%",
 	},
+	listBox: {
+		padding:theme.spacing(1),
+		width: "85%",
+		height: 200,
+    maxHeight: 360,
+    overflowY: "scroll",
+	},
 	listItem: {
-		background:theme.palette.background.default,
 	},
 	textField: {
 		width: "40%",
@@ -58,6 +64,7 @@ export default function DownloadDialog(props){
 		botList.map((item,index)=>(
 			<ListItem 
 				className={classes.listItem}
+				selected={botIndex===index}
 				button onClick={e=>handleClick(e,index)}
 			>
 				<ListItemAvatar>
@@ -90,7 +97,7 @@ export default function DownloadDialog(props){
 			<Box className={classes.items}>
 				{props.sorterSelector }
 			</Box>
-			<Box className={classes.items}>
+			<Box className={classes.listBox}>
 				<List dense={true} >
 					{botItems}
 				</List>
@@ -128,15 +135,18 @@ export default function DownloadDialog(props){
 					className={classes.wideButton} 
 					size="large"
 					disabled = {botIndex === null}
+					variant={botIndex!==null ? "contained" : "default"}
+					color={botIndex!==null ? "primary" : "default"}
 					onClick={handleDownload}>
 					ダウンロード
 				</Button>
 			</Box>
 			{!props.required && 
-				<Box>
+				<Box className={classes.items}>
 					<Button
-						classNmae={classes.wideButton}
+						className={classes.wideButton}
 						size="large"
+
 						onClick={e=>props.handleClose()}
 					>
 						キャンセル

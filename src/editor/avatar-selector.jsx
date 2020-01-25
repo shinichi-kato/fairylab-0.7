@@ -21,7 +21,6 @@ const useStyles = makeStyles(theme => createStyles({
 export default function AvatarSelector(props){
   const classes = useStyles();
   const avatar = props.avatar;
-  console.log("avatar=",avatar);
   return (
     <>
     {botAvatarList.map(path=>(

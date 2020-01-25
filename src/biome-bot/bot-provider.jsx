@@ -266,10 +266,8 @@ export default function BotProvider(props){
 			UIの描画が先行する。UI側ではPartが更新される前のdefault状態でも動作するようにする。
 			それがうまく行かないとき、.get().then()が動作も応答もしないかのように見えるので注意。
 		*/
-		const query = firebase
-			.firestore()
-			.collection('bot')
-			.doc(botId)
+		firebase.firestore()
+			.collection('bot').doc(botId)
 			.collection('part')
 			.get()
 			.then(querySnapshot=>{
@@ -286,6 +284,24 @@ export default function BotProvider(props){
 				setMessage(error);
 				setShowDownload('required');
 			})
+	}
+
+	function saveParts(botId,partContext){
+		const partRef = firebase.firestore()
+			.collection('bot').doc(botId).collection('part');
+
+
+		for(let part in partContext){
+			const context = partContext[part]; 
+			partRef.doc(part).set({
+				type:context.type,
+				availability:context.availability,
+				sensitivity:context.sensitivity,
+				retention:context.retention,
+				dictSource:context.dictSource,
+			});
+		}
+		
 	}
 	
 	function handleClearMessage(){
@@ -330,6 +346,7 @@ export default function BotProvider(props){
 					newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 					
 					fsBotRef.set(newSettings);
+					saveParts(settings.id,settings.partContext);
 					setMessage(`${newSettings.id} をアップロードしました`);
 				}
 				else{
@@ -341,6 +358,7 @@ export default function BotProvider(props){
 						newSettings.parts = JSON.stringify(newSettings.parts);
 
 						fsBotRef.set(newSettings);
+						saveParts(settings.id,settings.partContext);
 						setMessage(`${newSettings.id} をアップロードしました`);
 					}
 					else{
@@ -364,7 +382,6 @@ export default function BotProvider(props){
 
 	useEffect(()=>{
 		let loaded = false;
-		console.log("loaded",loaded,"firestoreRef=",firestoreRef)
 		if(loaded){ return; }
 
 		if(firestoreRef) 

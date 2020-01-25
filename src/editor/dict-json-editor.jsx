@@ -39,7 +39,7 @@ export default function DictJsonEditor(props){
           placeholder="例：[[[&quote;こんにちは&quote;],[&quote;よろしく！\&quote;],[[&quote;&quote;],[&quote;&quote;]]]"
           fullWidth
           multiline
-          rows={14}
+          rows={22}
           value={dict}
           onChange={e=>setDict(e.target.value)}
         />
