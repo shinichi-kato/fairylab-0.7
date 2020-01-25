@@ -142,7 +142,7 @@ function reducer(state,action){
 			localStorage.setItem('bot.description',dict.description);
 			localStorage.setItem('bot.published',dict.published);
 			localStorage.setItem('bot.timestamp',dict.timestamp.toString());
-			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));
+			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));	
 			localStorage.setItem('bot.memory',JSON.stringify(dict.memory));
 
 			biomeBot.setParam(dict);
@@ -202,19 +202,21 @@ export default function BotProvider(props){
 
 	function handleChangeSorterIndex(index){
 		setSorterIndex(index);
-		fetchBotList();
+		fetchBotList(index);
 	}
 
 	function handleSetSampleBot(){
 		setSampleBot(props.firebase,firestoreRef);
-		fetchBotList();
+		fetchBotList(sorterIndex);
 	}
 	
-	function fetchBotList(){
-		const settings = sorterSettings[sorters[sorterIndex]];
+	function fetchBotList(sorterindex){
+		const settings = sorterSettings[sorters[sorterindex]];
 		const cond = settings.private ? 
 			{l:'creatorUID',r:auth.user.uid} :
 			{l:'published',r:true};
+		
+			console.log("fetchBotList",cond)
 
 		firestoreRef.collection('bot')
 			.where(cond.l,'==',cond.r)
@@ -301,7 +303,7 @@ export default function BotProvider(props){
 			creatorName:settings.creatorName,
 			timestamp:firebase.firestore.Timestamp.now(),
 			description:settings.description,
-			published:settings.published,
+			published:Boolean(settings.published),
 			parts:settings.parts,
 			memory:{},
 
@@ -323,7 +325,10 @@ export default function BotProvider(props){
 			let fsBotRef = firestoreRef.collection('bot').doc(settings.id);
 			fsBotRef.get().then(doc=>{
 				if(!doc.exists){
+
+					newSettings.parts = JSON.stringify(newSettings.parts);
 					newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+					
 					fsBotRef.set(newSettings);
 					setMessage(`${newSettings.id} をアップロードしました`);
 				}
@@ -333,6 +338,8 @@ export default function BotProvider(props){
 						// すでに同じ型式のデータが存在する場合、creatorUIDが自分でなければ
 						// 上書き禁止メッセージを送る
 						newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+						newSettings.parts = JSON.stringify(newSettings.parts);
+
 						fsBotRef.set(newSettings);
 						setMessage(`${newSettings.id} をアップロードしました`);
 					}
@@ -346,11 +353,12 @@ export default function BotProvider(props){
 	}
 
 	function handleShowDownloadDialog(){
-		console.log("showDownloadDialog-notrequired")
+		fetchBotList(sorterIndex);
 		setShowDownload('notRequired')
 	}
 
 	function handleClose(){
+
 		setShowDownload(false);
 	}
 
@@ -419,7 +427,7 @@ export default function BotProvider(props){
 			}else{
 				// 2. localstorageにデータがない場合、
 				//    firebaseからダウンロードするDialogを開く
-				fetchBotList();
+				fetchBotList(sorterIndex);
 				setShowDownload('required');
 			}
 		
@@ -448,7 +456,6 @@ export default function BotProvider(props){
 					}
 					message={message}
 					botList={botList}
-					fetchBotList={fetchBotList}
 					handleDownload={handleDownload}
 					handleSave={handleSave}
 					handleSetSampleBot={handleSetSampleBot}

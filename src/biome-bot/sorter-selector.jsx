@@ -1,4 +1,4 @@
-import React ,{useState} from 'react';
+import React from 'react';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 
@@ -15,8 +15,8 @@ export default function SorterSelector(props){
       {sorters.map((sorter,index)=>(
         <Button 
           key={index}
-          color={index==sorterIndex ? "primary" : "default"}
-          variant={index==sorterIndex ? "contained": "default"}
+          color={index===sorterIndex ? "primary" : "default"}
+          variant={index===sorterIndex ? "contained": "default"}
           onClick={e=>handleClickButton(index)}    
         >
           {sorterSettings[sorter].label}

@@ -203,9 +203,11 @@ function NewPartCard(props){
   )
 }
 
+
 export default function PartsList(props){
   const classes=useStyles();
   const {parts,partContext} = props;
+  console.log("parts=",parts)
   const partItems = parts.map((part,index)=>(
     <PartCard index={index} name={part} {...partContext[part]}
       handleRaisePart={props.handleRaisePart}
