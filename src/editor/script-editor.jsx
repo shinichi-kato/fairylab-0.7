@@ -29,6 +29,7 @@ function toTimestampString(timestamp){
 	
 	*/ 
 	const datestr = timestamp.toString();
+	
 	const r = datestr.match(/seconds=([0-9]+)/);
 	// r = ["seconds=12453340","12453340"]
 	let d = new Date(r[1]*1000);
@@ -138,8 +139,8 @@ function reducer(state,action){
 						availability: 1.0,
 						sensitivity: 0.01,
 						retention: 0.9,
-						dict:[],
-						_dictByteSize:0,
+						dictSource:"",
+						_dictSourceByteSize:0,
 					}
 				}
 			}
@@ -177,8 +178,7 @@ function reducer(state,action){
 
 		case 'updatePart':{
 			const context = action.context;
-			const size = getStrByteSize(
-				JSON.stringify(context.dict));
+			const size = getStrByteSize(context.dictSource);
 
 			let parts = state.parts;
 			if(context._isNameChanged){
@@ -201,8 +201,8 @@ function reducer(state,action){
 						availability: context.availability,
 						sensitivity: context.sensitivity,
 						retention: context.retention,
-						dict:[...context.dict],
-						_dictByteSize:size,		
+						dictSource:context.dictSource,
+						_dictSourceByteSize:size,		
 					}
 				}
 	
@@ -314,6 +314,7 @@ export default function ScriptEditor(props){
 						id="displayName"
 						placeholder="例：ぽち"
 						fullWidth
+						required
 						value={state.displayName}
 						onChange={e=>dispatch({
 							type:'changeDisplayName',

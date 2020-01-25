@@ -101,12 +101,11 @@ export default function PartEditor(props){
   const classes = useStyles();
   const {name,context} =props;
   const [state,dispatch] = useReducer(reducer,initialState(name,context))
-  const [partDict,setPartDict] = useState(context.dict);
   const [editorMode,setEditorMode] = useState(true);
   
   
 
-  function handleUpdate(dict){
+  function handleUpdate(dictSource){
     props.handleUpdatePart(name,{
       type:state.type,
       availability:state.availability,
@@ -114,8 +113,8 @@ export default function PartEditor(props){
       retention: state.retention,
       _isNameChanged:state.isNameChange,
       _originalName:state.originalName,
-      dict:dict,
-      _dictByteSize:getStrByteSize(dict),
+      dictSource:dictSource,
+      _dictSourceByteSize:getStrByteSize(dictSource),
     });
   }
 
@@ -232,12 +231,12 @@ export default function PartEditor(props){
       <Grid xs={12}>
         {editorMode ? 
             <DictJsonEditor 
-              dict={partDict}
+              dict={context.dictSource}
               handleUpdate={handleUpdate}
             />
             :
             <DictJsonEditor
-              dict={partDict}
+              dict={context.dictSource}
               handleUpdate={handleUpdate}
             />
           }

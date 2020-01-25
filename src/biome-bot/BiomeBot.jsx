@@ -40,7 +40,7 @@ export default class BiomeBot{
     this.photoURL = dict.photoURL;
     this.creatorUID = dict.creator;
     this.timestamp = dict.timestamp;
-    this.parts = typeof dict.parts === 'string' ? JSON.parse(dict.parts) : dict.parts;
+    this.parts = dict.parts;
     this.memory = typeof dict.memory === 'string' ? JSON.parse(dict.memory) : dict.memory;
     
   }

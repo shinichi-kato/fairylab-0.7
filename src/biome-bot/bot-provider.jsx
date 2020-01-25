@@ -69,7 +69,7 @@ function setSampleBot(firebase,firestoreRef){
 		availability: 1,
 		sensitivity: 0.1,
 		retention: 1,
-		dict:`[
+		dictSource:`[
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
 			[["ばいばい","さようなら"],["ばいば〜い"]],
 			[["怒りっぽいと言われた"],["そうだったんですか。。。\n情熱的なんですね。"]]
@@ -90,31 +90,31 @@ function initialState(){
 		timestamp : localStorage.getItem('bot.timestamp') || '',
 		published : localStorage.getItem('bot.published') || false,
 		description: localStorage.getItem('bot.description') || "",
-		parts : localStorage.getItem('bot.parts') || "",
+		parts : JSON.parse(localStorage.getItem('bot.parts')) || "",
 		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
 	};
 
 	biomeBot.setParam(data);
 
 	let partContext = new Object();
-	
 	for (let part of data.parts) {
+
 		let context = {
 			type : localStorage.getItem(`bot.part.${part}.type`) || "",
 			availability : Number(localStorage.getItem(`bot.part.${part}.availability`)) || 0,
 			sensitivity : Number(localStorage.getItem(`bot.part.${part}.sensitivity`)) || 0,
 			retention : Number(localStorage.getItem(`bot.part.${part}.retention`)) || 0,
-			dict : localStorage.getItem(`bot.part.${part}.dict`) || "[]",
-			_dictByteSize : 0,
+			dictSource : localStorage.getItem(`bot.part.${part}.dictSource`) || "[]",
+			_dictSourceByteSize : 0,
 		};
 
-		context._dictByteSize = getStrByteSize(context.dict);
-		context.dict = JSON.parse(context.dict);
-
+		context._dictSourceByteSize = getStrByteSize(context.dictSource);
+		
 
 		partContext[part] = {...context};
 		biomeBot.setPart(context);
 	}
+	console.log("partcontext=",partContext)
 
 	return ({
 		...data,
@@ -142,8 +142,8 @@ function reducer(state,action){
 			localStorage.setItem('bot.creatorName',dict.creatorName);
 			localStorage.setItem('bot.description',dict.description);
 			localStorage.setItem('bot.published',dict.published);
-			localStorage.setItem('bot.timestamp',dict.timestamp);
-			localStorage.setItem('bot.parts',dict.parts);
+			localStorage.setItem('bot.timestamp',dict.timestamp.toString());
+			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));
 			localStorage.setItem('bot.memory',JSON.stringify(dict.memory));
 
 			biomeBot.setParam(dict);
@@ -161,17 +161,18 @@ function reducer(state,action){
 			localStorage.setItem(`bot.part.${name}.availability`,dict.availability);
 			localStorage.setItem(`bot.part.${name}.sensitivity`,dict.sensitivity);
 			localStorage.setItem(`bot.part.${name}.retention`,dict.retention);
-			localStorage.setItem(`bot.part.${name}.dict`,dict.dict);
-			// _dictByteSizeは毎回計算するので保存はしない。
+			localStorage.setItem(`bot.part.${name}.dictSource`,dict.dictSource);
+			// _dictSourceByteSizeは毎回計算するので保存はしない。
 			biomeBot.setPart(dict);
 
 			return {
 				...state,
 				partContext:{
 					...state.partContext,
-					[name]:dict,
-					_dictByteSize:getStrByteSize(dict.dict),
-
+					[name]:{
+						...dict,
+						_dictSourceByteSize:getStrByteSize(dict.dictSource),
+					}
 				},
 				botState: 'ready'
 			}
@@ -212,7 +213,6 @@ export default function BotProvider(props){
 	
 	function fetchBotList(){
 		const settings = sorterSettings[sorters[sorterIndex]];
-		console.log("index=",sorterIndex,"settings=",settings)
 		const cond = settings.private ? 
 			{l:'creatorUID',r:auth.user.uid} :
 			{l:'published',r:true};
@@ -287,18 +287,20 @@ export default function BotProvider(props){
 			})
 	}
 	
-
+	function handleClearMessage(){
+		setMessage("");
+	}
 	
 
 	function handleSave(settings,upload){
 
 		const newSettings = {
 			id:settings.id,
-			dispalyName:settings.displayName,
+			displayName:settings.displayName,
 			photoURL:settings.photoURL,
 			creatorUID:settings.creatorUID,
 			creatorName:settings.creatorName,
-			timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+			timestamp:firebase.firestore.Timestamp.now(),
 			description:settings.description,
 			published:settings.published,
 			parts:settings.parts,
@@ -309,7 +311,10 @@ export default function BotProvider(props){
 		dispatch({type:'setParam',dict:newSettings});
 
 		for (let part of settings.parts){
-			dispatch({type:'setPart',dict:settings.partContext[part]});
+			dispatch({type:'setPart',dict:{
+				...settings.partContext[part],
+				name:part
+			}});
 		}
 
 
@@ -318,22 +323,28 @@ export default function BotProvider(props){
 		if(upload){
 			let fsBotRef = firestoreRef.collection('bot').doc(settings.id);
 			fsBotRef.get().then(doc=>{
-				if(doc.exists){
+				if(!doc.exists){
+					newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+					fsBotRef.set(newSettings);
+					setMessage(`${newSettings.id} をアップロードしました`);
+				}
+				else{
 					let data =doc.data();
 					if(data.creatorUID === newSettings.creatorUID){
-						// すでに同じ型式のデータが存在する場合、creatorUIDが自分と同じであれば
-						// 上書きを実行する。そうでなければ上書き禁止メッセージを送る
-						setMessage(`${newSettings.id} をアップロードしました`)
-					}else{
-						setMessage(`他のユーザの${data.id}が存在しています。型式名を変えてください`)
+						// すでに同じ型式のデータが存在する場合、creatorUIDが自分でなければ
+						// 上書き禁止メッセージを送る
+						newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+						fsBotRef.set(newSettings);
+						setMessage(`${newSettings.id} をアップロードしました`);
+					}
+					else{
+						setMessage(`他のユーザの${data.id}が存在しています。違う型式名にしてください`)
 					}
 				}
 			})
-			fsBotRef.set(newSettings);
 	
 		}
 	}
-
 
 	useEffect(()=>{
 		let loaded = false;
@@ -411,6 +422,7 @@ export default function BotProvider(props){
 			message:message,
 			state:state,
 			handleSave:handleSave,
+			clearMessage:handleClearMessage,
 		}}>
 			{showDownload ?
 				<DownloadDialog 
@@ -427,7 +439,7 @@ export default function BotProvider(props){
 					handleDownload={handleDownload}
 					handleSave={handleSave}
 					handleSetSampleBot={handleSetSampleBot}
-					handleClearMessage={()=>setMessage("")}
+					handleClearMessage={handleClearMessage}
 				/>
 				:
 				props.children

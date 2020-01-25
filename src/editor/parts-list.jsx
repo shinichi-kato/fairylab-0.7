@@ -90,7 +90,7 @@ const ParameterTooltip = withStyles({
 
 
 function PartCard(props){
-  const {name,_dictByteSize,index} = props;
+  const {name,_dictSourceByteSize,index} = props;
   const classes = useStyles();
   const [anchorEl,setAnchorEl] = useState(null);
 
@@ -101,6 +101,7 @@ function PartCard(props){
     setAnchorEl(null);
     props.handleDeletePart(index);
   }
+  console.log("partcard=",props)
 
   return(
     <ListItem key={name}>
@@ -137,11 +138,11 @@ function PartCard(props){
               </Box>
               <Box className={classes.progress}>
                 <ParameterTooltip 
-                  title={`${_dictByteSize.toFixed(2)} バイト`} 
+                  title={`${_dictSourceByteSize.toFixed(2)} バイト`} 
                   arrow>
                   <DictSizeProgress 
                     variant="determinate"
-                    value={dictSizeScale(_dictByteSize)}
+                    value={dictSizeScale(_dictSourceByteSize)}
                   />
                 </ParameterTooltip>
               </Box>
