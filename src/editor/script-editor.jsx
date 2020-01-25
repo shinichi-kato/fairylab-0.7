@@ -11,6 +11,7 @@ import SaveIcon from '@material-ui/icons/SaveAlt';
 
 import PartsList from './parts-list.jsx';
 import PartEditor from './part-editor.jsx';
+import AvatarSelector from './avatar-selector.jsx';
 
 import {BotContext} from '../biome-bot/bot-provider.jsx';
 import {AuthContext} from '../authentication/auth-provider.jsx';
@@ -83,7 +84,7 @@ function reducer(state,action){
 				id:action.id,
 				published : false,
 				creatorName : action.user.displayName,
-				creatorId: action.user.UID,
+				creatorUID: action.user.uid,
 				likeCount: 0,
 			}
 		}
@@ -101,7 +102,7 @@ function reducer(state,action){
 				...state,
 				photoURL : action.photoURL,
 				creatorName : action.user.displayName,
-				creatorId: action.user.UID,				
+				creatorUID: action.user.uid,				
 				likeCount: 0,
 			}
 		}
@@ -110,7 +111,7 @@ function reducer(state,action){
 				...state,
 				description:action.description,
 				creatorName : action.user.displayName,
-				creatorId: action.user.UID,					
+				creatorUID: action.user.uid,					
 			}
 		}
 
@@ -193,6 +194,8 @@ function reducer(state,action){
 			
 			return {
 				...state,
+				creatorName : action.user.displayName,
+				creatorUID: action.user.uid,	
 				parts:[...parts],
 				partContext:{
 					...state.partContext,
@@ -278,7 +281,13 @@ export default function ScriptEditor(props){
 	}
 
 	function handleUpdatePart(name,context){
-		dispatch({type:'updatePart',name:name,context:context});
+		dispatch({
+			type:'updatePart',
+			name:name,
+			context:context,
+			user:auth.user,
+			});
+		console.log("auth.user",auth.user)	
 		setEditingPart(null);
 	}
 
@@ -344,7 +353,7 @@ export default function ScriptEditor(props){
 					</Button>
 				</ButtonGroup>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid item xs={6}>
 			<Typography 
 					variant="body2">
 				チャットボットの型式
@@ -363,8 +372,21 @@ export default function ScriptEditor(props){
 				</Paper>
 			</Grid>
 			<Grid item xs={6}>
+				<Typography	
+					variant="body2">
+						アイコン
+				</Typography>
+				<AvatarSelector 
+					avatar={state.photoURL}
+					changeAvatar={x=>dispatch({
+						type:'changePhotoURL',
+						photoURL:x,
+						user:auth.user,
+						})} />
+			</Grid>
+			<Grid item xs={6}>
 				<Typography variant="body2">
-					作者名
+					作者
 				</Typography>
 				<Paper className={classes.readOnlyField}>
 					{state.creatorName}

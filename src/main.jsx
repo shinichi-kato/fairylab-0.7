@@ -5,6 +5,7 @@ import ApplicationBar from './application-bar/application-bar.jsx';
 import Dashboard from './dashboard/dashboard.jsx';
 import ScriptEditor from './editor/script-editor.jsx';
 import UserSettings from './authentication/user-settings.jsx';
+import BotDownload from './biome-bot/bot-download.jsx';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -21,6 +22,7 @@ const parentPage={
 	'Dashboard' : 'Dashboard',
 	'UserSettings' : 'Dashboard',
 	'ScriptEditor' : 'Dashboard',
+	'BotDownload' : 'Dashboard',
 }
 
 export default function Main(props){
@@ -51,6 +53,11 @@ export default function Main(props){
 		),
 		'UserSettings': ()=>(
 			<UserSettings 
+				toParentPage={handleToParentPage}
+			/>
+		),
+		'BotDownload': ()=>(
+			<BotDownload
 				toParentPage={handleToParentPage}
 			/>
 		),

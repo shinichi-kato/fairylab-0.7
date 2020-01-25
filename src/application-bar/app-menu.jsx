@@ -71,7 +71,14 @@ function AppMenuDialog(props){
             </Button>
           </Box>
           <Box>
-            <Typography variant="subtitle1">{version}</Typography>
+            <Button className={classes.wideButton}
+              onClick={e=>handleChangePage('BotDownload')}
+            >
+              チャットボットのダウンロード
+            </Button>
+          </Box>
+          <Box>
+            <Typography variant="subtitle1">ver {version}</Typography>
           </Box>
         </Box>
       </Paper>

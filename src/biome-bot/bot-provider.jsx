@@ -114,7 +114,6 @@ function initialState(){
 		partContext[part] = {...context};
 		biomeBot.setPart(context);
 	}
-	console.log("partcontext=",partContext)
 
 	return ({
 		...data,
@@ -244,8 +243,9 @@ export default function BotProvider(props){
 				setBotList(result);
 
 			}).catch(error=>{
+				console.log(error)
 				setMessage(error)
-				setShowDownload(true);
+				setShowDownload('required');
 			});
 
 	}
@@ -281,9 +281,8 @@ export default function BotProvider(props){
 				});
 			})
 			.catch(error=>{
-				console.log(error);
 				setMessage(error);
-				setShowDownload(true);
+				setShowDownload('required');
 			})
 	}
 	
@@ -338,7 +337,7 @@ export default function BotProvider(props){
 						setMessage(`${newSettings.id} をアップロードしました`);
 					}
 					else{
-						setMessage(`他のユーザの${data.id}が存在しています。違う型式名にしてください`)
+						setMessage(`すでに${settings.id}があります。違う型式名にしてください`)
 					}
 				}
 			})
@@ -346,11 +345,21 @@ export default function BotProvider(props){
 		}
 	}
 
+	function handleShowDownloadDialog(){
+		console.log("showDownloadDialog-notrequired")
+		setShowDownload('notRequired')
+	}
+
+	function handleClose(){
+		setShowDownload(false);
+	}
+
 	useEffect(()=>{
 		let loaded = false;
+		console.log("loaded",loaded,"firestoreRef=",firestoreRef)
 		if(loaded){ return; }
 
-		if(firestoreRef !== null) 
+		if(firestoreRef) 
 		{
 			loaded = true;
 
@@ -366,8 +375,8 @@ export default function BotProvider(props){
 							setSampleBot(props.firebase,firestoreRef);
 						}
 					})
-				
 			}
+			
 
 			if(state.id){
 				// 1. 起動時、localStorageにデータがあれば
@@ -386,7 +395,7 @@ export default function BotProvider(props){
 							data = {
 								...data,
 								id:doc.id,
-								parts:JSON.parse(data.parts)
+								parts:data.parts,
 							};
 
 							dispatch({type:'setParam', dict:data});
@@ -402,30 +411,34 @@ export default function BotProvider(props){
 				})
 				.catch(error=>{
 					setMessage(error);
-					setShowDownload(true);
+					setShowDownload('required');
 				});
 
 				return;
+			
+			}else{
+				// 2. localstorageにデータがない場合、
+				//    firebaseからダウンロードするDialogを開く
+				fetchBotList();
+				setShowDownload('required');
 			}
-			
-			// 2. localstorageにデータがない場合、
-			//    firebaseからダウンロードするDialogを開く
-			fetchBotList();
-			setShowDownload(true);
-			
+		
 		}
 
 	},[firestoreRef]);
 
+	
   return (
 		<BotContext.Provider value={{
 			message:message,
 			state:state,
 			handleSave:handleSave,
+			downloadDialog:handleShowDownloadDialog,
 			clearMessage:handleClearMessage,
 		}}>
-			{showDownload ?
+			{showDownload !== false ?
 				<DownloadDialog 
+					required={showDownload==='required'}
 					sorterSelector={
 						<SorterSelector
 							sorters={sorters}
@@ -440,6 +453,7 @@ export default function BotProvider(props){
 					handleSave={handleSave}
 					handleSetSampleBot={handleSetSampleBot}
 					handleClearMessage={handleClearMessage}
+					handleClose={handleClose}
 				/>
 				:
 				props.children

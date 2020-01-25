@@ -141,7 +141,7 @@ export default function PartEditor(props){
       </Grid>
       <Grid item xs={4}>
         <Typography variant="body2">
-            起動率 (0〜1.00)
+            起動率A (0〜1.00)
           </Typography>
           <Paper className={classes.textField}>
             <InputBase 
@@ -155,12 +155,12 @@ export default function PartEditor(props){
             />
           </Paper>
           <Typography variant="caption">
-            パートはこの確率で実行される
+            パートはA%の確率で実行される
           </Typography>
       </Grid>
       <Grid item xs={4}>
         <Typography variant="body2">
-            感度 (0〜1.00)
+            感度S (0〜1.00)
           </Typography>
           <Paper className={classes.textField}>
             <InputBase 
@@ -174,12 +174,12 @@ export default function PartEditor(props){
             />
           </Paper>
           <Typography variant="caption">
-            入力の類似度がこの値を下回ると不一致とみなす
+            入力の類似度がSを下回ると不一致とみなす
           </Typography>
       </Grid>      
       <Grid item xs={4}>
         <Typography variant="body2">
-            継続率 (0〜1.00)
+            継続率R (0〜1.00)
           </Typography>
           <Paper className={classes.textField}>
             <InputBase 
@@ -193,7 +193,7 @@ export default function PartEditor(props){
             />
           </Paper>
           <Typography variant="caption">
-            この確率で次回もこのパートが実行される
+            次もR%でこのパートから実行
           </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -214,7 +214,7 @@ export default function PartEditor(props){
                 color={editorMode ? "primary" : "default"}
                 onClick={e=>setEditorMode(true)}
               >
-                エディタ
+                表入力
               </Button>
               <Button
                 size="small"
@@ -222,9 +222,12 @@ export default function PartEditor(props){
                 color={editorMode ? "default" : "primary"}
                 onClick={e=>setEditorMode(false)}
               >
-                JSON
+                エディタ
               </Button>
             </ButtonGroup>
+            <Button>
+              書き方
+            </Button>
           </Box>
         </Box>
       </Grid>

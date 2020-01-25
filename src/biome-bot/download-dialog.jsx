@@ -132,6 +132,17 @@ export default function DownloadDialog(props){
 					ダウンロード
 				</Button>
 			</Box>
+			{!props.required && 
+				<Box>
+					<Button
+						classNmae={classes.wideButton}
+						size="large"
+						onClick={e=>props.handleClose()}
+					>
+						キャンセル
+					</Button>
+				</Box>
+			}
 		</Box>
 	)
 }
