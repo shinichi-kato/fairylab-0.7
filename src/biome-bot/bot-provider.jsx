@@ -67,7 +67,7 @@ function setSampleBot(firebase,firestoreRef){
 	fsBotRef.collection('part').doc('greeting').set({
 		type: "sensor",
 		availability: 1,
-		sensitivity: 0.1,
+		generosity: 0.1,
 		retention: 1,
 		dictSource:`[
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
@@ -94,7 +94,7 @@ function initialState(){
 		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
 	};
 
-	biomeBot.setParam(data);
+	biomeBot.setParam({settings:data});
 
 	let partContext = new Object();
 	for (let part of data.parts) {
@@ -102,7 +102,7 @@ function initialState(){
 		let context = {
 			type : localStorage.getItem(`bot.part.${part}.type`) || "",
 			availability : Number(localStorage.getItem(`bot.part.${part}.availability`)) || 0,
-			sensitivity : Number(localStorage.getItem(`bot.part.${part}.sensitivity`)) || 0,
+			generosity : Number(localStorage.getItem(`bot.part.${part}.generosity`)) || 0,
 			retention : Number(localStorage.getItem(`bot.part.${part}.retention`)) || 0,
 			dictSource : localStorage.getItem(`bot.part.${part}.dictSource`) || "[]",
 			_dictSourceByteSize : 0,
@@ -112,7 +112,7 @@ function initialState(){
 		
 
 		partContext[part] = {...context};
-		biomeBot.setPart(context);
+		biomeBot.setPart({settings:context});
 	}
 
 	return ({
@@ -145,7 +145,7 @@ function reducer(state,action){
 			localStorage.setItem('bot.parts',JSON.stringify(dict.parts));	
 			localStorage.setItem('bot.memory',JSON.stringify(dict.memory));
 
-			biomeBot.setParam(dict);
+			biomeBot.setParam({settings:dict,forceReset:true});
 
 			return {
 				...dict,
@@ -158,11 +158,11 @@ function reducer(state,action){
 			const name = action.dict.name;
 			localStorage.setItem(`bot.part.${name}.type`,dict.type);
 			localStorage.setItem(`bot.part.${name}.availability`,dict.availability);
-			localStorage.setItem(`bot.part.${name}.sensitivity`,dict.sensitivity);
+			localStorage.setItem(`bot.part.${name}.generosity`,dict.generosity);
 			localStorage.setItem(`bot.part.${name}.retention`,dict.retention);
 			localStorage.setItem(`bot.part.${name}.dictSource`,dict.dictSource);
 			// _dictSourceByteSizeは毎回計算するので保存はしない。
-			biomeBot.setPart(dict);
+			biomeBot.setPart({settings:dict,forceReset:true});
 
 			return {
 				...state,
@@ -216,8 +216,6 @@ export default function BotProvider(props){
 			{l:'creatorUID',r:auth.user.uid} :
 			{l:'published',r:true};
 		
-			console.log("fetchBotList",cond)
-
 		firestoreRef.collection('bot')
 			.where(cond.l,'==',cond.r)
 			// .orderBy(settings.order,settings.dir) // index生成まわりらしきエラーが出る
@@ -245,7 +243,6 @@ export default function BotProvider(props){
 				setBotList(result);
 
 			}).catch(error=>{
-				console.log(error)
 				setMessage(error)
 				setShowDownload('required');
 			});
@@ -255,7 +252,7 @@ export default function BotProvider(props){
 
 	function handleDownload(settings){
 		dispatch({type:'setParam',dict:settings})
-		biomeBot.setParam(settings);
+		biomeBot.setParam({settings:settings,forceReset:true});
 		loadParts(settings.id,settings.parts);
 		setShowDownload(false);
 	}
@@ -277,7 +274,7 @@ export default function BotProvider(props){
 						name:doc.id,
 					};
 					dispatch({type:'setPart',dict:data});
-					biomeBot.setPart(doc.id,data);
+					biomeBot.setPart({settings:data,forceReset:true});
 				});
 			})
 			.catch(error=>{
@@ -296,7 +293,7 @@ export default function BotProvider(props){
 			partRef.doc(part).set({
 				type:context.type,
 				availability:context.availability,
-				sensitivity:context.sensitivity,
+				generosity:context.generosity,
 				retention:context.retention,
 				dictSource:context.dictSource,
 			});
@@ -408,7 +405,6 @@ export default function BotProvider(props){
 				//    firebase上のデータ更新を確認し、最新版をロードしてコンパイル
 				let fsRef = firestoreRef
 					.collection('bot').doc(state.id);
-				console.log("loading")
 				fsRef.get().then(doc=>{
 					if(doc.exists){
 						let data = doc.data();
@@ -424,7 +420,7 @@ export default function BotProvider(props){
 							};
 
 							dispatch({type:'setParam', dict:data});
-							biomeBot.setParam(data);
+							biomeBot.setParam({settings:data,forceReset:trure});
 							loadParts(state.id,data.parts);
 						}
 

@@ -100,7 +100,6 @@ function PartCard(props){
     setAnchorEl(null);
     props.handleDeletePart(index);
   }
-  console.log("partcard=",props)
 
   return(
     <ListItem key={name}>

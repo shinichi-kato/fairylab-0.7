@@ -48,7 +48,7 @@ function initialState(name,context){
     name:name,
     type:context.type,
     availability:context.availability,
-    sensitivity:context.sensitivity,
+    generosity:context.generosity,
     retention:context.retention,
     _isNameChanged:false,
     _originalName:name,  // nameが変わったら親のpartsも書き換える
@@ -79,10 +79,10 @@ function reducer(state,action){
       }
     }
 
-    case 'changeSensitivity':{
+    case 'changeGenerosity':{
       return {
         ...state,
-        sensitivity:action.sensitivity,
+        generosity:action.generosity,
       }
     }
 
@@ -109,7 +109,7 @@ export default function PartEditor(props){
     props.handleUpdatePart(name,{
       type:state.type,
       availability:state.availability,
-      sensitivity: state.sensitivity,
+      generosity: state.generosity,
       retention: state.retention,
       _isNameChanged:state.isNameChange,
       _originalName:state.originalName,
@@ -160,17 +160,17 @@ export default function PartEditor(props){
       </Grid>
       <Grid item xs={4}>
         <Typography variant="body2">
-            感度S (0〜1.00)
+            寛容性G (0〜1.00)
           </Typography>
           <Paper className={classes.textField}>
             <InputBase 
-              id="sensitivity"
+              id="generosity"
               placeholder="例：0.20"
               fullWidth
-              value={state.sensitivity}
+              value={state.generosity}
               onChange={e=>dispatch({
-                type:'changeSensitivity',
-                sensitivity:e.target.value})}
+                type:'changeGenerosity',
+                generosity:e.target.value})}
             />
           </Paper>
           <Typography variant="caption">

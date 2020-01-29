@@ -138,7 +138,7 @@ function reducer(state,action){
 					[newPartName]:{
 						type:"sensor",
 						availability: 1.0,
-						sensitivity: 0.01,
+						generosity: 0.01,
 						retention: 0.9,
 						dictSource:"",
 						_dictSourceByteSize:0,
@@ -202,7 +202,7 @@ function reducer(state,action){
 					[action.name]:{
 						type:context.type,
 						availability: context.availability,
-						sensitivity: context.sensitivity,
+						generosity: context.generosity,
 						retention: context.retention,
 						dictSource:context.dictSource,
 						_dictSourceByteSize:size,		
@@ -287,7 +287,6 @@ export default function ScriptEditor(props){
 			context:context,
 			user:auth.user,
 			});
-		console.log("auth.user",auth.user)	
 		setEditingPart(null);
 	}
 
