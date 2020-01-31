@@ -1,5 +1,7 @@
-import React,{useState,useRef,useContext} from 'react';
+import React,{useState,useCallback,useContext} from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+
 import {RightBalloon,LeftBalloon} from './balloons.jsx';
 import Console from './console.jsx';
 
@@ -47,11 +49,11 @@ export default function Home(props){
     const newLog = [...log,message];
     newLog.slice(-CHAT_WINDOW);
     setLog(newLog);
-    localStorage.setItem(JSON.stringify(newLog));
+    localStorage.setItem('homeLog',JSON.stringify(newLog));
 
   }
 
-  function handleWriteMessage(props){
+  function handleWriteMessage(text){
     writeLog({
       displayName:user.displayName,
       speakerId:user.uid,
@@ -60,7 +62,7 @@ export default function Home(props){
       timestamp:firebase.firestore.Timestamp.now(),
     });
     
-    bot.reply(message)
+    bot.reply(text)
       .then(reply=>{
         if(reply.text !== null){
           writeLog({
@@ -81,10 +83,11 @@ export default function Home(props){
     if(node!== null){
       node.scrollIntoView({behavior:"smooth",block:"end"});
     }
-  },[state])
-
-  const speeches = state.homeLogSlice.map(speech =>{
-    return (speech.speakerId === props.account.uid || speech.speakerId === -1 )?
+  },[log])
+  
+  const logSlice=log.slice(-CHAT_WINDOW);
+  const speeches = logSlice.map(speech =>{
+    return (speech.speakerId === user.uid || speech.speakerId === -1 )?
       <RightBalloon speech={speech}/>
     :
       <LeftBalloon speech={speech} />

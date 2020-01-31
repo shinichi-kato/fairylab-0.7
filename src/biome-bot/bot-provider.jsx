@@ -377,6 +377,10 @@ export default function BotProvider(props){
 		setShowDownload(false);
 	}
 
+	function handleReply(text){
+		return biomeBot.reply(text)
+	}
+
 	useEffect(()=>{
 		let loaded = false;
 		if(loaded){ return; }
@@ -420,7 +424,7 @@ export default function BotProvider(props){
 							};
 
 							dispatch({type:'setParam', dict:data});
-							biomeBot.setParam({settings:data,forceReset:trure});
+							biomeBot.setParam({settings:data,forceReset:true});
 							loadParts(state.id,data.parts);
 						}
 
@@ -456,6 +460,7 @@ export default function BotProvider(props){
 			handleSave:handleSave,
 			downloadDialog:handleShowDownloadDialog,
 			clearMessage:handleClearMessage,
+			reply:handleReply,
 		}}>
 			{showDownload !== false ?
 				<DownloadDialog 

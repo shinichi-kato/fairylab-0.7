@@ -3,6 +3,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
+import toTimestampString from './to-timestamp-string.jsx';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -67,7 +68,7 @@ function getTimestampStr(timestamp){
 export function LeftBalloon(props){
   const classes = useStyles();
   const speech = props.speech;
-  const timestampStr = getTimestampStr(speech.timestamp);
+  const timestampStr = toTimestampString(speech.timestamp);
 
 
   return (
@@ -90,7 +91,7 @@ export function LeftBalloon(props){
 export function RightBalloon(props){
   const classes = useStyles();
   const speech = props.speech;
-  const timestampStr = getTimestampStr(speech.timestamp);
+  const timestampStr = toTimestampString(speech.timestamp);
 
   return (
     <Box key={speech.id}

@@ -70,7 +70,9 @@ export default function App() {
           firebase={firebase}
           firestoreRef={firestore}
         >
-          <Main />
+          <Main 
+            firebase={firebase}
+            firestoreRef={firestore} />
         </BotProvider>
       </AuthProvider>
     </ThemeProvider>

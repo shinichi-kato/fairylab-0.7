@@ -6,6 +6,7 @@ import Dashboard from './dashboard/dashboard.jsx';
 import ScriptEditor from './editor/script-editor.jsx';
 import UserSettings from './authentication/user-settings.jsx';
 import BotDownload from './biome-bot/bot-download.jsx';
+import Home from './chat/home.jsx';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -23,6 +24,7 @@ const parentPage={
 	'UserSettings' : 'Dashboard',
 	'ScriptEditor' : 'Dashboard',
 	'BotDownload' : 'Dashboard',
+	'Home' : 'Dashboard',
 }
 
 export default function Main(props){
@@ -48,7 +50,7 @@ export default function Main(props){
 	const mainView = {
 		'Dashboard' : ()=>(
 			<Dashboard 
-				
+				toHome={()=>setCurrentPage('Home')}
 			/>
 		),
 		'UserSettings': ()=>(
@@ -68,6 +70,9 @@ export default function Main(props){
 				toPartEditor={handleToPartEditor}
 			/>
 		),
+		'Home' : () =>(
+			<Home firebase ={props.firebase}/>
+		)
 	} 
 
 	function handleChangePage(page){

@@ -63,7 +63,9 @@ export default function Dashboard(props){
 				justifyContent="space-between"
 			>
 				<Box className={classes.buttonContainer}>
-					<Button className={classes.homeButton}>
+					<Button className={classes.homeButton}
+						onClick={props.toHome}
+					>
 						<img 
 							className={classes.buttonImage} 
 							src="icons/home.svg" alt="HOME"/>

@@ -31,7 +31,8 @@ export default class Part {
 				return;
 			}
 		}
-
+		let dict =null;
+		
 		try{
 			dict = JSON.parse(dictSource);
 		} 
@@ -44,7 +45,7 @@ export default class Part {
 		}
 
 		// コメント行(文字列だけの行)削除
-		d = d.filter(x=>typeof x !== "string");
+		let d = d.filter(x=>typeof x !== "string");
 
 		switch(this.type){
 			case 'sensor':{
