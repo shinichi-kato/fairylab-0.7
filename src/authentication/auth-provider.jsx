@@ -53,6 +53,10 @@ function reducer(state,action){
 				message: action.message,
 			}
 		}
+		case 'signOut':{
+			return initialState;
+		}
+
 		default :
 			throw new Error(`invalid action ${action.type}`);
 	}
@@ -143,6 +147,14 @@ export default function AuthProvider(props){
 		}
 	}
 
+	function handleSignOut(){
+		firebase.auth().signOut().then(()=>{
+			dispatch({type:'signOut'});
+		}).catch(error=>{
+			dispatch({type:'error',message:error.message})
+		});
+	}
+
 	function handleClose(){
 		setPage(false);
 	}
@@ -152,6 +164,7 @@ export default function AuthProvider(props){
 		<AuthContext.Provider value={{
 			user:state.user,
 			authState:state.authState,
+			handleSignOut:()=>handleSignOut(),
 			handleGetReady:()=>handleGetReady(),
 			handleChangeUserInfo:(n,p)=>handleChangeUserInfo(n,p),
 		}}>

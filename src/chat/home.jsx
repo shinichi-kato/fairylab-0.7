@@ -7,6 +7,7 @@ import Console from './console.jsx';
 
 import {BotContext} from '../biome-bot/bot-provider.jsx';
 import {AuthContext} from '../authentication/auth-provider.jsx';
+import {toTimestampString} from './to-timestamp-string.jsx';
 
 const CHAT_WINDOW = 10;
 const LOG_WINDOW = 100;
@@ -43,7 +44,7 @@ export default function Home(props){
   const auth = useContext(AuthContext);
   const user = auth.user;
 
-  const [log,setLog] = useState(JSON.parse(localStorage.getItem('homelog') || "[]"));
+  const [log,setLog] = useState(JSON.parse(localStorage.getItem('homeLog') || "[]"));
 
   function writeLog(message){
     const newLog = [...log,message];
@@ -59,7 +60,7 @@ export default function Home(props){
       speakerId:user.uid,
       photoURL:user.photoURL,
       text:text,
-      timestamp:firebase.firestore.Timestamp.now(),
+      timestamp:toTimestampString(firebase.firestore.Timestamp.now()),
     });
     
     bot.reply(text)
@@ -70,7 +71,7 @@ export default function Home(props){
             photoURL:reply.photoURL,
             text:reply.text,
             speakerId:reply.botId,
-            timestamp:firebase.firestore.Timestamp.now()
+            timestamp:toTimestampString(firebase.firestore.Timestamp.now())
           });
         }
       })
@@ -83,7 +84,7 @@ export default function Home(props){
     if(node!== null){
       node.scrollIntoView({behavior:"smooth",block:"end"});
     }
-  },[log])
+  })
   
   const logSlice=log.slice(-CHAT_WINDOW);
   const speeches = logSlice.map(speech =>{

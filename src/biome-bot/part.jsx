@@ -45,7 +45,7 @@ export default class Part {
 		}
 
 		// コメント行(文字列だけの行)削除
-		let d = d.filter(x=>typeof x !== "string");
+		let d = dict.filter(x=>typeof x !== "string");
 
 		switch(this.type){
 			case 'sensor':{
@@ -57,6 +57,7 @@ export default class Part {
 				*/	
 				this.inDict = new TextRetriever(d.map(l=>internalRepr.from_inDict(l[0])));
 				this.outDict = d.map(l=>l[1]);
+				break;
 			}
 			default: {
 				this.inDict = [];
@@ -64,6 +65,7 @@ export default class Part {
 				this.errorMessage = `type ${this.type} は使用できません`
 			}
 		}
+		console.log("compiled")
 	}
 
 	setup(){

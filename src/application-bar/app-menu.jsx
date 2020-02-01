@@ -39,6 +39,11 @@ function AppMenuDialog(props){
     props.handleChangePage(page);
   }
 
+  function handleSignOut(){
+    handleClose();
+    props.handleSignOut();
+  }
+
   return (
     <Popover
       id={id}
@@ -67,7 +72,7 @@ function AppMenuDialog(props){
             <Button className={classes.wideButton}
               onClick={e=>handleChangePage('ScriptEditor')}
             >
-              チャットボット辞書の編集
+              チャットボットの設定
             </Button>
           </Box>
           <Box>
@@ -75,6 +80,13 @@ function AppMenuDialog(props){
               onClick={e=>handleChangePage('BotDownload')}
             >
               チャットボットのダウンロード
+            </Button>
+          </Box>
+          <Box>
+            <Button className={classes.wideButton}
+              onClick={handleSignOut}
+            >
+              サインアウト
             </Button>
           </Box>
           <Box>

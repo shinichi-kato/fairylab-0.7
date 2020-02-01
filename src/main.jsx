@@ -30,7 +30,6 @@ const parentPage={
 export default function Main(props){
 	const classes = useStyles();
 	const [currentPage,setCurrentPage] = useState('Dashboard');
-	const [currentPart,setCurrerntPart] = useState('');
 
 	function handleToParentPage(){
 		if (currentPage in parentPage){
@@ -40,13 +39,8 @@ export default function Main(props){
 		}
 	}
 
-	function handleToPartEditor(name){
-		setCurrerntPart(name);
 
-	}
-
-
-	 
+ 
 	const mainView = {
 		'Dashboard' : ()=>(
 			<Dashboard 
@@ -67,7 +61,6 @@ export default function Main(props){
 			<ScriptEditor 
 				handleClose={handleToParentPage}
 				toParentPage={handleToParentPage}
-				toPartEditor={handleToPartEditor}
 			/>
 		),
 		'Home' : () =>(
@@ -90,7 +83,6 @@ export default function Main(props){
 					currentPage={currentPage}
 					handleChangePage={handleChangePage}
 					toParentPage={handleToParentPage}
-
 				/>
 			</Box>
 			<Box className={classes.container}>

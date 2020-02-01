@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import NavigateBefore from '@material-ui/icons/NavigateBefore';
 
 import AppMenu from './app-menu.jsx';
+import {AuthContext} from '../authentication/auth-provider.jsx';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,6 +27,7 @@ const useStyles = makeStyles(theme => ({
 export default function ApplicationBar(props){
   const {currentPage,toParentPage} = props;
   const classes = useStyles();
+  const auth = useContext(AuthContext);
 
   return (
     <div className={classes.root}>
@@ -43,6 +45,7 @@ export default function ApplicationBar(props){
           </Typography>
           <AppMenu
             handleChangePage={props.handleChangePage}
+            handleSignOut={auth.handleSignOut}
           />
         </Toolbar>
         

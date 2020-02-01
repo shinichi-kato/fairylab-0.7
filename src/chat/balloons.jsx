@@ -3,7 +3,6 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
-import toTimestampString from './to-timestamp-string.jsx';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -60,15 +59,9 @@ const useStyles = makeStyles(theme => createStyles({
 }));
 
 
-function getTimestampStr(timestamp){
-  const t = new Date(timestamp);
-  return t.toISOString();
-}
-
 export function LeftBalloon(props){
   const classes = useStyles();
   const speech = props.speech;
-  const timestampStr = toTimestampString(speech.timestamp);
 
 
   return (
@@ -82,7 +75,7 @@ export function LeftBalloon(props){
       <Box className={classes.leftBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
         <Typography>{speech.text}</Typography>
-        <Typography variant="caption">{timestampStr}</Typography>
+        <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
     </Box>
   )
@@ -91,7 +84,6 @@ export function LeftBalloon(props){
 export function RightBalloon(props){
   const classes = useStyles();
   const speech = props.speech;
-  const timestampStr = toTimestampString(speech.timestamp);
 
   return (
     <Box key={speech.id}
@@ -101,7 +93,7 @@ export function RightBalloon(props){
       <Box className={classes.rightBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
         <Typography>{speech.text}</Typography>
-        <Typography variant="caption">{timestampStr}</Typography>
+        <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
       <Box >
         <Avatar src={speech.photoURL} className={classes.avatar} />

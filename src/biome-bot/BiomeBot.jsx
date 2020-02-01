@@ -67,6 +67,7 @@ export default class BiomeBot{
     this.creatorName = settings.creatorName;
     this.timestamp = settings.timestamp;
     this.parts = settings.parts;
+    this.currentParts = settings.parts;
 
     if(forceReset){
       this.memory = {
@@ -76,6 +77,10 @@ export default class BiomeBot{
     }else{
       this.memory = JSON.parse(localStorage.getItem(`Biomebot.memory`)) ||
         {...settings.memory };
+      
+        if(!("queue" in settings.memory)){
+          this.memory.queue=[];
+        }
     }
     
   }
@@ -92,7 +97,7 @@ export default class BiomeBot{
   reply(message){
     
     let text = "BiomeBot Not Respond";
-
+    console.log("repling to",message)
     return new Promise((resolve,reject)=>{
       if(this.memory.queue.length !== 0){
         text = this.memory.queue.shift();

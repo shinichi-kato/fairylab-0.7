@@ -1,4 +1,4 @@
-function toTimestampString(timestamp){
+export function toTimestampString(timestamp){
 	/*
 	 firebaseのTimestampはlocalStorageに保存されるときに
 	　Timestamp(seconds=1578745004, nanoseconds=743000000)
