@@ -9,21 +9,20 @@ export default class Part {
 	constructor(settings,wantCompile){
 		this.name=settings.name || '';
 		this.type = settings.type;
-		this.availability = settings.availability;
-		this.generosity = settings.generosity;
-		this.retention = settings.retention;
+		this.availability = parseFloat(settings.availability);
+		this.generosity = parseFloat(settings.generosity);
+		this.retention = parseFloat(settings.retention);
 		this.inDict = [];
 		this.outDict = [];
-		this.repier = {};
-
-		this.compile(settings.dictSource,wantCompile);
-		this.setup();
+		this.replier = ()=>{return "part.seutp()が実行されていません"};
 	}
 
-	compile(dictSource,wantCompile){
+	compile(source,wantCompile){
+		// wantCompile:
+		// コンパイルを指示されておらず、キャッシュがあればそれを使用
+		//  現状ではinDictをシリアライズで来ていないので常にtrue
+		wantCompile = true;
 		if(!wantCompile){
-			// コンパイルを指示されておらず、キャッシュがあればそれを使用
-			//  現状ではinDictをシリアライズで来ていないので保留
 			this.inDict = JSON.parse(localStorage.getItem(`BiomeBot.{this.name}.inDict`)) || null;
 			this.outDict = JSON.parse(localStorage.getItem(`BiomeBot.{this.name}.outDict`)) || null;
 
@@ -31,21 +30,25 @@ export default class Part {
 				return;
 			}
 		}
+
 		let dict =null;
 		
 		try{
-			dict = JSON.parse(dictSource);
+			dict = JSON.parse(source);
 		} 
 		catch(e){
 			if(e instanceof SyntaxError){
 				this.errorMessage = 
 					`辞書${this.name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
-				return ;
+				console.log(this.errorMessage)
+				console.log(source)
+				return false;
 			}
 		}
 
 		// コメント行(文字列だけの行)削除
 		let d = dict.filter(x=>typeof x !== "string");
+		console.log("dict=",d);
 
 		switch(this.type){
 			case 'sensor':{
@@ -65,12 +68,12 @@ export default class Part {
 				this.errorMessage = `type ${this.type} は使用できません`
 			}
 		}
-		console.log("compiled")
 	}
 
 	setup(){
 		switch(this.type){
 			case 'sensor':{
+				
 				this.replier=(message,state)=>{
 					const ir = internalRepr.from_message(message);
 					const result = this.inDict.retrieve(ir);
@@ -88,7 +91,10 @@ export default class Part {
 						text:text,
 						score:result.score
 					});
+
 				};
+
+				console.log("repllier=",this.replier)
 				break;
 			}
 			default:{

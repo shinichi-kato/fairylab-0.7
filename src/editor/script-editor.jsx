@@ -302,6 +302,7 @@ export default function ScriptEditor(props){
 			<PartEditor 
 				handleUpdatePart={handleUpdatePart}
 				name={editingPart}
+				parts={state.parts}
 				context={state.partContext[editingPart]}
 				handleClose={()=>setEditingPart(null)} />
 		)

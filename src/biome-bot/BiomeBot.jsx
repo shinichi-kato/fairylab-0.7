@@ -83,15 +83,18 @@ export default class BiomeBot{
           this.memory.queue=[];
         }
       
-        if(!this.currentParts){
-          this.currentParts = this.parts;
+        if(this.currentParts.length===0){
+          this.currentParts = [...this.parts];
         }
     }
     
   }
 
   setPart({settings,forceReset=false}){
-     this.partContext[settings.name] = new Part(settings,forceReset);
+     let part = new Part(settings,forceReset);
+     part.compile(settings.dictSource)
+     part.setup()
+     this.partContext[settings.name] = part;
   }
 
   dump(){
@@ -102,17 +105,17 @@ export default class BiomeBot{
   reply(message){
     
     let text = "BiomeBot Not Respond";
-    console.log("currentParts",this.currentParts)
     return new Promise((resolve,reject)=>{
       if(this.memory.queue.length !== 0){
         text = this.memory.queue.shift();
       }
       else{
         for(let i in this.currentParts){
-          let part = this.currentParts[i];
-
+          let partName=this.currentParts[i];
+          let part = this.partContext[partName];
           // availability check
           if(Math.random() > part.availability){
+            console.log("availability insufficient")
             continue;
           }
 
@@ -123,24 +126,21 @@ export default class BiomeBot{
             continue
           }
 
-          // retention check
-          if(Math.random() < part.retention){
-            // このパートを末尾に
-            const me = part;
-            this.currentParts.slice(i,1);
-            this.currentParts.push(me);
-          }
-
-          
           // 改行\nあったらqueueに送る
           if(reply.text.indexOf('\n') !== -1){
             const replies = reply.text.split('\n');
 						text = replies.shift();
 						this.memory.queue.push(replies);
           }
-            
 
-          
+          // retention check
+          if(Math.random() < part.retention){
+            // このパートを末尾に
+            this.currentParts.slice(i,1);
+            this.currentParts.push(partName);
+            // currentPartsの順番を破壊するのでforループを抜ける
+            break;
+          }
         }
       }
       

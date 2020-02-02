@@ -112,6 +112,7 @@ function initialState(){
 		
 
 		partContext[part] = {...context};
+		context.name=part;
 		biomeBot.setPart({settings:context});
 	}
 

@@ -7,10 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import DictTableEditor from './dict-table-editor.jsx';
 import DictJsonEditor from './dict-json-editor.jsx';
-
+import ParameterInput from './parameter-input.jsx';
 import {getStrByteSize} from '../biome-bot/getStrByteSize.jsx';
 
 const typeNames=[
@@ -29,7 +30,12 @@ const useStyles = makeStyles(theme => createStyles({
 		padding: "2px 4px",
 		backgroundColor:"#E0E0E0",
 
-	},
+  },
+  textFieldError: {
+    padding: "2px 4px",
+		backgroundColor:"#E0c0c0",
+   
+  },
 	readOnlyField:{
 		padding: theme.spacing(1),
 		backgroundColor:"#C0C0C0",	
@@ -50,6 +56,12 @@ function initialState(name,context){
     availability:context.availability,
     generosity:context.generosity,
     retention:context.retention,
+    _error: {
+      availablity:false,
+      generosity:false,
+      retention:false,
+      name:false,
+    },
     _isNameChanged:false,
     _originalName:name,  // nameが変わったら親のpartsも書き換える
   }
@@ -58,10 +70,15 @@ function initialState(name,context){
 function reducer(state,action){
   switch(action.type){
     case 'changeName' :{
+      const isError = state._originalName!==action.name && action.name in action.parts;
       return {
         ...state,
         name:action.name,
         _isNameChanged:true,
+        _error:{
+          ...state._error,
+          name:isError,
+        }
       }
     }
     
@@ -73,23 +90,44 @@ function reducer(state,action){
     }
 
     case 'changeAvailability':{
-      return {
+      const value = parseFloat(action.availability);
+      const isError = value<0 || 1<value;
+
+      return{
         ...state,
         availability:action.availability,
+        _error:{
+          ...state._error,
+          availability:isError
+        }
       }
     }
 
     case 'changeGenerosity':{
-      return {
+      const value = parseFloat(action.generosity);
+      const isError = value<0 || 1<value;
+
+      return{
         ...state,
         generosity:action.generosity,
+        _error:{
+          ...state._error,
+          generosity:isError
+        }
       }
     }
 
     case 'changeRetention':{
-      return {
+      const value = parseFloat(action.retention);
+      const isError = value<0 || 1<value;
+
+      return{
         ...state,
         retention:action.retention,
+        _error:{
+          ...state._error,
+          retention:isError
+        }
       }
     }
     default : 
@@ -103,7 +141,7 @@ export default function PartEditor(props){
   const [state,dispatch] = useReducer(reducer,initialState(name,context))
   const [editorMode,setEditorMode] = useState(true);
   
-  
+  const isInvalid = state._error.availability || state._error.generosity || state._error.retention;
 
   function handleUpdate(dictSource){
     props.handleUpdatePart(name,{
@@ -125,15 +163,21 @@ export default function PartEditor(props){
 		  alignContent="flex-start">
       
       <Grid item xs={12}>
-        <Typography variant="body2">パートの名前</Typography>
-        <Paper className={classes.textField}>
+        <Typography variant="body2"
+          color={state._error.name ? "error" : "initial"}
+        >
+          { state._error.name ? "パートの名前が他と重複しています" : "パートの名前"}
+        </Typography>
+        <Paper className={ state._error.name ? classes.textFieldError : classes.textField}
+        >
 					<InputBase 
 						id="name"
 						placeholder="例：Part-1"
 						fullWidth
 						value={state.name}
 						onChange={e=>dispatch({
-							type:'changeName',
+              type:'changeName',
+              parts:props.parts,
 							name:e.target.value})}
 					/>
 				</Paper>
@@ -142,59 +186,45 @@ export default function PartEditor(props){
       <Grid item xs={4}>
         <Typography variant="body2">
             起動率A (0〜1.00)
-          </Typography>
-          <Paper className={classes.textField}>
-            <InputBase 
-              id="availability"
-              placeholder="例：0.20"
-              fullWidth
-              value={state.availability}
-              onChange={e=>dispatch({
-                type:'changeAvailability',
-                availability:e.target.value})}
-            />
-          </Paper>
-          <Typography variant="caption">
-            パートはA%の確率で実行される
-          </Typography>
+        </Typography>
+        <ParameterInput 
+          parameterId="availability"
+          caption="パートはA%の確率で実行される"
+          error={state._error.availability}
+          value={state.availability}
+          handleChangeValue={e=>dispatch({
+            type:'changeAvailability',
+            availability:e.target.value})}
+        />
       </Grid>
       <Grid item xs={4}>
         <Typography variant="body2">
             寛容性G (0〜1.00)
-          </Typography>
-          <Paper className={classes.textField}>
-            <InputBase 
-              id="generosity"
-              placeholder="例：0.20"
-              fullWidth
-              value={state.generosity}
-              onChange={e=>dispatch({
-                type:'changeGenerosity',
-                generosity:e.target.value})}
-            />
-          </Paper>
-          <Typography variant="caption">
-            入力の類似度がSを下回ると不一致とみなす
-          </Typography>
-      </Grid>      
+        </Typography>
+        <ParameterInput 
+        parameterId="generosity"
+        caption="入力の類似度がGを下回ると不一致とみなす"
+        error={state._error.generosity}
+        value={state.generosity}
+        handleChangeValue={e=>dispatch({
+          type:'changeGenerosity',
+          generosity:e.target.value})}
+        />
+    </Grid>      
       <Grid item xs={4}>
         <Typography variant="body2">
             継続率R (0〜1.00)
-          </Typography>
-          <Paper className={classes.textField}>
-            <InputBase 
-              id="retention"
-              placeholder="例：0.20"
-              fullWidth
-              value={state.retention}
-              onChange={e=>dispatch({
-                type:'changeRetention',
-                retention:e.target.value})}
-            />
-          </Paper>
-          <Typography variant="caption">
-            次もR%でこのパートから実行
-          </Typography>
+        </Typography>
+        <ParameterInput 
+        parameterId="retention"
+        caption="次もR%でこのパートから実行"
+        error={state._error.retention}
+        value={state.retention}
+        handleChangeValue={e=>dispatch({
+          type:'changeRetention',
+          retention:e.target.value})}
+        />
+
       </Grid>
       <Grid item xs={12}>
         <Box display="flex"
@@ -235,11 +265,13 @@ export default function PartEditor(props){
         {editorMode ? 
             <DictJsonEditor 
               dict={context.dictSource}
+              updateDisabled={isInvalid}
               handleUpdate={handleUpdate}
             />
             :
             <DictJsonEditor
               dict={context.dictSource}
+              updateDisabled={isInvalid}
               handleUpdate={handleUpdate}
             />
           }

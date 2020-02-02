@@ -30,6 +30,7 @@ const useStyles = makeStyles(theme => createStyles({
 export default function DictJsonEditor(props){
   const classes = useStyles();
   const [dict,setDict] = useState(props.dict)
+
   return (
     <Box display="flex" flexDirection="column">
       <Box className={classes.item}>
@@ -51,6 +52,7 @@ export default function DictJsonEditor(props){
           size="large"
           variant="contained"
           color="primary"
+          disabled = {props.updateDisabled}
           onClick={e=>props.handleUpdate(dict)}>
           OK
         </Button>
