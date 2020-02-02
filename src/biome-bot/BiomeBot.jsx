@@ -55,8 +55,8 @@ export default class BiomeBot{
   */
   constructor(){
     this.partContext=new Object();
-    this.memory = {queue:[]};
-    this.currentParts = [];
+    this.memory = JSON.parse(localStorage.getItem('BiomeBot.memory')) || {queue:[]};
+    this.currentParts = JSON.parse(localStorage.getItem('BiomeBot.currentParts')) || [];
   }
 
   setParam({settings,forceReset=false}){
@@ -67,19 +67,24 @@ export default class BiomeBot{
     this.creatorName = settings.creatorName;
     this.timestamp = settings.timestamp;
     this.parts = settings.parts;
-    this.currentParts = settings.parts;
 
     if(forceReset){
       this.memory = {
         queue:this.memory.queue,
         ...settings.memory 
       };
+      this.currentParts = settings.parts;
+
     }else{
       this.memory = JSON.parse(localStorage.getItem(`Biomebot.memory`)) ||
         {...settings.memory };
       
         if(!("queue" in settings.memory)){
           this.memory.queue=[];
+        }
+      
+        if(!this.currentParts){
+          this.currentParts = this.parts;
         }
     }
     
@@ -97,7 +102,7 @@ export default class BiomeBot{
   reply(message){
     
     let text = "BiomeBot Not Respond";
-    console.log("repling to",message)
+    console.log("currentParts",this.currentParts)
     return new Promise((resolve,reject)=>{
       if(this.memory.queue.length !== 0){
         text = this.memory.queue.shift();
@@ -134,14 +139,21 @@ export default class BiomeBot{
 						this.memory.queue.push(replies);
           }
             
-          resolve({
-            botId:this.id,
-            text:text,
-            displayName:this.displayName,
-            photoURL:this.photoURL,
-          });
+
+          
         }
       }
+      
+      resolve({
+        botId:this.id,
+        text:text,
+        displayName:this.displayName,
+        photoURL:this.photoURL,
+      });
+
+      this.dump();
+
+      
     })
   }
 

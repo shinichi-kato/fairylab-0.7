@@ -47,19 +47,22 @@ export default function Home(props){
   const [log,setLog] = useState(JSON.parse(localStorage.getItem('homeLog') || "[]"));
 
   function writeLog(message){
-    const newLog = [...log,message];
-    newLog.slice(-CHAT_WINDOW);
-    setLog(newLog);
-    localStorage.setItem('homeLog',JSON.stringify(newLog));
+    setLog(prevLog=>{
+      /* 連続selLog()で前のselLog()が後のsetLog()で上書きされるのを防止 */
+      const newLog = [...prevLog,message];
+      newLog.slice(-CHAT_WINDOW);
+      localStorage.setItem('homeLog',JSON.stringify(newLog));
+      return newLog;
+    });
 
   }
 
   function handleWriteMessage(text){
     writeLog({
       displayName:user.displayName,
-      speakerId:user.uid,
       photoURL:user.photoURL,
       text:text,
+      speakerId:user.uid,
       timestamp:toTimestampString(firebase.firestore.Timestamp.now()),
     });
     
