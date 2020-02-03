@@ -131,9 +131,6 @@ export default class TextRetriever{
     // wv
     const wv = zeros(this.vocab.length);
 
-    
-    
-
     for(let word of text){
         let pos = this.vocab.indexOf(word);
         if(pos !== -1){

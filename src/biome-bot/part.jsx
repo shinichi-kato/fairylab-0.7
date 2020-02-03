@@ -48,7 +48,6 @@ export default class Part {
 
 		// コメント行(文字列だけの行)削除
 		let d = dict.filter(x=>typeof x !== "string");
-		console.log("dict=",d);
 
 		switch(this.type){
 			case 'sensor':{
@@ -94,7 +93,6 @@ export default class Part {
 
 				};
 
-				console.log("repllier=",this.replier)
 				break;
 			}
 			default:{

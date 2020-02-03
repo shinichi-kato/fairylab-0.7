@@ -106,8 +106,7 @@ export default class InternalRepr{
     this.segmenter = new TinySegmenter();
   }
 
-  from_message(message){
-    let text = message.text;
+  from_message(text){
     let nodes = this.segmenter.segment(text);
     nodes = this.parse(nodes);
     return nodes;

@@ -115,26 +115,29 @@ export default class BiomeBot{
           let part = this.partContext[partName];
           // availability check
           if(Math.random() > part.availability){
-            console.log("availability insufficient")
+            // console.log("availability insufficient")
             continue;
           }
 
           // generousity check
           const reply = part.replier(message,this.memory);
-          if(reply.score < 1-part.generousity){
-            console.log(`generousity:score ${reply.score} insufficient`);
+          console.log("reply=",reply,"g=",part.generosity)
+          if(reply.score < 1-part.generosity){
+            // console.log(`generousity:score ${reply.score} insufficient`);
             continue
           }
-
+          
           // 改行\nあったらqueueに送る
           if(reply.text.indexOf('\n') !== -1){
             const replies = reply.text.split('\n');
 						text = replies.shift();
 						this.memory.queue.push(replies);
+          }else{
+            text = reply.text;
           }
 
           // retention check
-          if(Math.random() < part.retention){
+          if(Math.random() > part.retention){
             // このパートを末尾に
             this.currentParts.slice(i,1);
             this.currentParts.push(partName);
