@@ -27,6 +27,10 @@ function reducer(state,action){
 			}
 		}
 		case 'authOk': {
+			const user= action.user;
+			localStorage.setItem('auth.displayName',user.displayName);
+			localStorage.setItem('auth.email',user.email);
+			localStorage.setItem('auth.photoURL',user.photoURL);
 			return {
 				user:action.user,
 				authState:'ok',
@@ -173,7 +177,6 @@ export default function AuthProvider(props){
 					user={state.user}
 					authState={state.authState}
 					message={state.message}
-					page={page}
 					handleClose={handleClose}
 					handleGetReady={handleGetReady}
 					handleSignIn={handleSignIn}

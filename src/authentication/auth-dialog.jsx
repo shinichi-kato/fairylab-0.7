@@ -40,11 +40,11 @@ const useStyles = makeStyles(theme => ({
 export default function AuthDialog(props){
 	const classes = useStyles();
 	const {user,page} = props;
-	const [email,setEmail] = useState(user.email);
-	const [password,setPassword] = useState(user.password);
-	const [displayName,setDisplayName] = useState(user.dispalyName);
-	const [photoURL,setPhotoURL] = useState(user.photoURL);
-	
+	const [email,setEmail] = useState(user.email || localStorage.getItem('auth.email'));
+	const [password,setPassword] = useState(user.password || "");
+	const [displayName,setDisplayName] = useState(user.displayName || localStorage.getItem('auth.displayName'));
+	const [photoURL,setPhotoURL] = useState(user.photoURL || localStorage.getItem('auth.photoURL'));
+
 	const page1NotReady = 
 		password === "" || email === "" || props.authState === 'run'; 
 	const page2NotReady = 
@@ -109,7 +109,7 @@ export default function AuthDialog(props){
 							fullWidth
 							readOnly={registerMode}
 							value={email}
-							onChange={e=>{setEmail(e.target.value)}}
+							onChange={e=>setEmail(e.target.value)}
 						/>
 					</Box>
 				</Box>
@@ -129,7 +129,7 @@ export default function AuthDialog(props){
 								readOnly={registerMode}
 								value={password}
 								onKeyPress={handleKeyPress}
-								onChange={e=>{setPassword(e.target.value)}}
+								onChange={e=>setPassword(e.target.value)}
 							/>
 					</Box>
 

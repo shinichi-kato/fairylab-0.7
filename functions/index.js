@@ -6,3 +6,13 @@ const functions = require('firebase-functions');
 // exports.helloWorld = functions.https.onRequest((request, response) => {
 //  response.send("Hello from Firebase!");
 // });
+
+const Passcode = require('../src/credentials/passcode.js');
+
+exports.checkPass = functions.https.onRequest((res,req) => {
+    if(req.body.passcode === Passcode){
+        res.status(200).send("ok")
+    }else{
+        res.status(200).send("bad")
+    }
+})

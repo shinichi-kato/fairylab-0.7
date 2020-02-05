@@ -137,9 +137,6 @@ export default class TextRetriever{
           wv.set([pos],wv.get([pos])+1);
         }
     }
-    // console.log("vocab=",this.vocab)
-    // console.log("wv=",wv.valueOf());
-    // console.log("table=",this.table);
     if(sum(wv) === 0){
       return { score: 0 ,index:null};
     }

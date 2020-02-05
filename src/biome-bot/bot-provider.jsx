@@ -7,7 +7,14 @@ import {AuthContext} from '../authentication/auth-provider.jsx';
 
 import {getStrByteSize} from './getStrByteSize.jsx';
 
-const biomeBot = new BiomeBot();
+// hubでのボット発話を制御するパラメータ
+const hubParam={
+	availability: 0.6,
+	generosity: 0.3,
+	retention: 0.6,
+};
+
+const biomeBot = new BiomeBot(hubParam);
 const BOT_LIST_MAX_LEN=20;
 
 const sorters = [

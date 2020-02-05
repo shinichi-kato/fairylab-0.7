@@ -51,12 +51,40 @@ export default class BiomeBot{
     ランダムに選んだ一つを返す。
 
 
+    ■■　多人数チャットにおけるチャットボットの動作について　■■
+
+		多人数が同時に参加するHubでは一対一の会話と同じ量でチャットボットが発言すると
+		チャットボットの発現量が多くなりすぎる。ここで各チャットボットはパートの集合体で
+		パート間の相互作用によりどのパートが発言するかを決めていた。この考え方を複数の
+		ボットに拡張し、Hub用にパートの変数と似た以下のパラメータを設定する。
+		
+		・Hub用availablity
+		ボットの発言はこの確率で実行される
+		
+		・Hub用generosity
+		通常のパートよりも低めの値を設定し、かなりスコアの高い返答のみを実行する。
+		これにより「おはよう！」には全員が返事するが、普通の話題は特定のボットしか
+		応答しないようになる。
+
+		・Hub用retention
+		一度応答したボットはアクティブ状態になる。
+		毎回retentionチェックを行い、成功したらHub用availabilityは1になる。
+		失敗したらHub用Availablityはもとの値になる。
+
+		これらは現バージョンでは固定の隠しパラメータだが、		いずれ親密度や体調で
+		変動するようにしたい。
     
   */
-  constructor(){
+  constructor(hubParam){
     this.partContext=new Object();
     this.memory = JSON.parse(localStorage.getItem('BiomeBot.memory')) || {queue:[]};
     this.currentParts = JSON.parse(localStorage.getItem('BiomeBot.currentParts')) || [];
+    this.hub={
+      availability = hubParam.availability,
+      generosity = hubParam.generosity,
+      retention = hubParam.retention,
+      isActive = false
+    };
   }
 
   setParam({settings,forceReset=false}){
@@ -102,10 +130,69 @@ export default class BiomeBot{
     localStorage.setItem(`BiomeBot.currentParts`,JSON.stringify(this.currentParts));
   }
 
+
   reply(message){
-    
+    /* 一対一チャットにおける返答生成 */
+      
     let text = "BiomeBot Not Respond";
     return new Promise((resolve,reject)=>{
+      result=this._partCircuit(message);
+
+      this.dump();
+      
+      resolve({
+        botId:this.id,
+        text:result.text || "Bot Not Respond",
+        displayName:this.displayName,
+        photoURL:this.photoURL,
+      });
+      
+    });
+  }
+
+  hubReply(message){
+    /* 多人数チャットにおける返答生成 */
+    let text = null;
+    return new Promise((resolve,reject)=>{
+      if(this.memory.queue.length !== 0){
+        text = this.memory.queue.shift();
+      }     
+      else{
+        //hub availablity check
+        if(!this.hub.isActive && Math.random() > this.hub.availability){
+          break;
+        }
+        // hub generosity
+        reply = _partCircuit(message)
+        if(this.reply.score < 1-this.hub.generosity){
+          break;
+        }
+        text = reply.text;
+
+        // hub retention
+        if(Math.random() > this.hub.retention){
+          this.hub.isActive = false;
+          // availabilityを戻す
+        }else{
+          // availablityを上げる
+          this.hub.isActive = true;
+
+        }
+      }
+      this.dump();
+      
+      resolve({
+        botId:this.id,
+        text:result.text,
+        displayName:this.displayName,
+        photoURL:this.photoURL,
+      });
+    });
+  }
+
+  _partCircuit(message){
+    
+    let text = null;
       if(this.memory.queue.length !== 0){
         text = this.memory.queue.shift();
       }
@@ -146,18 +233,11 @@ export default class BiomeBot{
           }
         }
       }
-      
-      resolve({
-        botId:this.id,
-        text:text,
-        displayName:this.displayName,
-        photoURL:this.photoURL,
-      });
 
-      this.dump();
-
+      this.dump();      
       
-    })
+      return(reply);
+      
+    
   }
-
 }
