@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import DictTableEditor from './dict-table-editor.jsx';
 import DictJsonEditor from './dict-json-editor.jsx';

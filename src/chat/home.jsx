@@ -44,6 +44,7 @@ export default function Home(props){
   const auth = useContext(AuthContext);
   const user = auth.user;
 
+  const botId = `${bot.state.id}@${user.uid}`;
   const [log,setLog] = useState(JSON.parse(localStorage.getItem('homeLog') || "[]"));
 
   function writeLog(message){
@@ -73,7 +74,7 @@ export default function Home(props){
             displayName:reply.displayName,
             photoURL:reply.photoURL,
             text:reply.text,
-            speakerId:reply.botId,
+            speakerId:botId,
             timestamp:toTimestampString(firebase.firestore.Timestamp.now())
           });
         }

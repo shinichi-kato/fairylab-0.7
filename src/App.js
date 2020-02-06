@@ -2,8 +2,6 @@ import React ,{useState,useEffect} from 'react';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
-
-
 import AuthProvider from './authentication/auth-provider.jsx';
 import BotProvider from './biome-bot/bot-provider.jsx';
 import Main from './main.jsx';
@@ -15,6 +13,9 @@ import 'firebase/firestore';
 
 import {firebaseConfig} from './credentials/firebase-init.js';
 const app = firebase.initializeApp(firebaseConfig);
+
+
+
 
 const theme = createMuiTheme({
   palette: {
@@ -35,7 +36,9 @@ export default function App() {
   const [firestore,setFirestore] = useState(null);
 
   function handleConnectFirestore(){
-    setFirestore(firebase.firestore(app));
+    firestoreRef = firebase.firestore(app)
+    setFirestore(firestoreRef);
+
   } 
   
   //------------------------------------------------------------------

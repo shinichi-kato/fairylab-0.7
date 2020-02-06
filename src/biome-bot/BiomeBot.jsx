@@ -59,7 +59,8 @@ export default class BiomeBot{
 		ボットに拡張し、Hub用にパートの変数と似た以下のパラメータを設定する。
 		
 		・Hub用availablity
-		ボットの発言はこの確率で実行される
+    ボットの発言はこの確率で実行される。通常より低めにすることで
+    ボリュームを抑える
 		
 		・Hub用generosity
 		通常のパートよりも低めの値を設定し、かなりスコアの高い返答のみを実行する。
@@ -80,10 +81,10 @@ export default class BiomeBot{
     this.memory = JSON.parse(localStorage.getItem('BiomeBot.memory')) || {queue:[]};
     this.currentParts = JSON.parse(localStorage.getItem('BiomeBot.currentParts')) || [];
     this.hub={
-      availability = hubParam.availability,
-      generosity = hubParam.generosity,
-      retention = hubParam.retention,
-      isActive = false
+      availability : hubParam.availability,
+      generosity : hubParam.generosity,
+      retention : hubParam.retention,
+      isActive : false
     };
   }
 
@@ -133,10 +134,9 @@ export default class BiomeBot{
 
   reply(message){
     /* 一対一チャットにおける返答生成 */
-      
-    let text = "BiomeBot Not Respond";
+
     return new Promise((resolve,reject)=>{
-      result=this._partCircuit(message);
+      let result=this._partCircuit(message);
 
       this.dump();
       
@@ -152,32 +152,36 @@ export default class BiomeBot{
 
   hubReply(message){
     /* 多人数チャットにおける返答生成 */
-    let text = null;
+    let result = {text:null};
     return new Promise((resolve,reject)=>{
       if(this.memory.queue.length !== 0){
-        text = this.memory.queue.shift();
+        result.text = this.memory.queue.shift();
       }     
       else{
-        //hub availablity check
-        if(!this.hub.isActive && Math.random() > this.hub.availability){
+        while(1){
+          //hub availablity check
+          if(!this.hub.isActive && Math.random() > this.hub.availability){
+            break;
+          }
+          // hub generosity
+          result = this._partCircuit(message);
+          if(result.score < 1-this.hub.generosity){
+            break;
+          }
+          text = result.text;
+
+          // hub retention
+          if(Math.random() > this.hub.retention){
+            this.hub.isActive = false;
+            // availabilityを戻す
+          }else{
+            // availablityを上げる
+            this.hub.isActive = true;
+
+          }
           break;
         }
-        // hub generosity
-        reply = _partCircuit(message)
-        if(this.reply.score < 1-this.hub.generosity){
-          break;
-        }
-        text = reply.text;
 
-        // hub retention
-        if(Math.random() > this.hub.retention){
-          this.hub.isActive = false;
-          // availabilityを戻す
-        }else{
-          // availablityを上げる
-          this.hub.isActive = true;
-
-        }
       }
       this.dump();
       
@@ -192,9 +196,9 @@ export default class BiomeBot{
 
   _partCircuit(message){
     
-    let text = null;
+    let reply = {text:null};
       if(this.memory.queue.length !== 0){
-        text = this.memory.queue.shift();
+        result.text = this.memory.queue.shift();
       }
       else{
         for(let i in this.currentParts){
@@ -207,7 +211,7 @@ export default class BiomeBot{
           }
 
           // generousity check
-          const reply = part.replier(message,this.memory);
+          reply = part.replier(message,this.memory);
           console.log("reply=",reply,"g=",part.generosity)
           if(reply.score < 1-part.generosity){
             // console.log(`generousity:score ${reply.score} insufficient`);
