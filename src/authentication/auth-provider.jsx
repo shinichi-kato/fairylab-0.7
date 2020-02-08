@@ -69,7 +69,7 @@ function reducer(state,action){
 export default function AuthProvider(props){
 	const {firebase} = props;
 	const [state,dispatch] = useReducer(reducer,initialState);
-	const [page,setPage] = useState(false);
+	const [page,setPage] = useState("signIn");
 
 
 	useEffect(()=>{
@@ -115,7 +115,7 @@ export default function AuthProvider(props){
 					dispatch({type:'error',message:"不正なemailアドレスです"});
 					break;
 				default:
-					dispatch({type:'error',message:error.message});
+					dispatch({type:'error',message:`${error.code}: ${error.message}`});
 			}
 		});
 	}
@@ -154,6 +154,7 @@ export default function AuthProvider(props){
 	function handleSignOut(){
 		firebase.auth().signOut().then(()=>{
 			dispatch({type:'signOut'});
+			setPage("signIn");
 		}).catch(error=>{
 			dispatch({type:'error',message:error.message})
 		});
@@ -174,6 +175,7 @@ export default function AuthProvider(props){
 		}}>
 			{page !== false	?
 				<AuthDialog 
+					page={page}
 					user={state.user}
 					authState={state.authState}
 					message={state.message}

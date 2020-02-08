@@ -89,7 +89,7 @@ function AppMenuDialog(props){
               サインアウト
             </Button>
           </Box>
-          <Box>
+          <Box alignSelf="center">
             <Typography variant="subtitle1">ver {version}</Typography>
           </Box>
         </Box>
@@ -124,6 +124,7 @@ export default function AppMenu(props){
         open={open}
         anchorEl={anchorEl}
         handleClose={handleClose}
+        handleSignOut={props.handleSignOut}
         handleChangePage={props.handleChangePage}
       />
 

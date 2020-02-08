@@ -83,6 +83,17 @@ export default function AuthDialog(props){
 		}
 	}
 
+	function handleKeyPressAtPassword(e){
+		if(e.key === 'Enter'){
+			e.preventDefault();
+			if(page === 'signIn'){
+				props.handleSignIn(email,password);
+			}else{
+				props.handleChangeUserInfo(displayName,photoURL);
+			}
+		}
+	}
+
 	return (
 		<div className={classes.root}>
 			<Box display="flex" flexDirection="column"
@@ -128,7 +139,7 @@ export default function AuthDialog(props){
 								placeholder="Password"
 								readOnly={registerMode}
 								value={password}
-								onKeyPress={handleKeyPress}
+								onKeyPress={handleKeyPressAtPassword}
 								onChange={e=>setPassword(e.target.value)}
 							/>
 					</Box>
@@ -137,11 +148,12 @@ export default function AuthDialog(props){
 
 				{ page === 'signIn' &&
 					<>
-						<Box className={classes.items}>
+						<Box className={classes.items} alignSelf="center">
 							<Typography variant="subtext">
 								{props.message}
-								{props.authState}
 							</Typography>
+						</Box>
+						<Box className={classes.items}>
 							<Button 
 								fullWidth
 								size="large"

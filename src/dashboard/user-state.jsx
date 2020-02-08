@@ -35,12 +35,12 @@ export default function UserState(props){
   return(
     <Box display="flex"
       flexDirection="column">
-      <Box>
+      <Box alignSelf="center">
         <Avatar
           className={classes.avatar}
           src={user.photoURL} />
       </Box>
-      <Box>
+      <Box alignSelf="center">
         <Typography>
           {user.displayName}
         </Typography>
