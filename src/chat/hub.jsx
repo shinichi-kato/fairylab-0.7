@@ -1,16 +1,29 @@
-import React,{useState,useCallback,useContext} from 'react';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import React,{useState,useEffect,useCallback,useContext} from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+
+import {RightBalloon,LeftBalloon} from './balloons.jsx';
+import Console from './console.jsx';
+
+import {BotContext} from '../biome-bot/bot-provider.jsx';
+import {AuthContext} from '../authentication/auth-provider.jsx';
+import {toTimestampString} from './to-timestamp-string.jsx';
+
 
 const CHAT_WINDOW = 12;
 
 const useStyles = makeStyles(theme => ({
+  root:{
+    background: "linear-gradient(180deg, #1e5799 0%,#2989d8 50%,#207cca 58%,#3fba1d 71%,#4e8e4d 100%);" 
+  },
   container: {
-   height:'calc( 100vh - 64px - 64px - 2px )',
+   height:'calc( 100vh - 64px - 48px  )',
    overflowY:'scroll',
    overscrollBehavior:'auto',
    WebkitOverflowScrolling:'touch',
    padding: 0
  }
+
 }));
 
 
@@ -21,7 +34,8 @@ export default function Hub(props){
 	チャットを行う。
 
 	*/
-	const firebase = props.firebase;
+  const firebase = props.firebase;
+  const firestore = props.firestore;
 	const classes = useStyles();
 	
 	const bot = useContext(BotContext);
@@ -55,13 +69,13 @@ export default function Hub(props){
     firestore
       .collection("hubLog")
       .orderBy('timestamp','desc')
-      .limit(MAX_HUB_LOG_DISPLAY)
+      .limit(CHAT_WINDOW)
       .onSnapshot(query=>{
         const messages = query.docs.map(doc=>{
           const data = doc.data();
           return {
             ...data,
-            timestamp:toTimestampStr(data.timestamp),
+            timestamp:toTimestampString(data.timestamp),
             id:doc.id,
           }
         });
@@ -69,12 +83,12 @@ export default function Hub(props){
         
         // 最後の発言者がボット自身でなければ発言にトライする
         const lastItem = messages[messages.length-1];
-        if(lastItem.id !== botId){
-          bot.hubReply(text)
+        if(lastItem && lastItem.speakerId !== botId){
+          bot.hubReply(lastItem.text)
           .then(reply=>{
             if(reply.text !== null){
               firestore.collection("hubLog").add({
-                displayName:reply.displayName,
+                displayName:`${reply.displayName} @ ${user.displayName}`,
                 photoURL:reply.photoURL,
                 text:reply.text,
                 speakerId:botId,
@@ -87,7 +101,7 @@ export default function Hub(props){
       })
     return (()=>{
       firestore.collection("hubLog")
-        .onSnaohot(()=>{});
+        .onSnapshot(()=>{});
     })
       
   },[])
@@ -112,10 +126,11 @@ export default function Hub(props){
 
   return(
     <Box display="flex"
-    flexDirection="column"
-    flexWrap="nowrap"
-    justifyContent="flex-start"
-    alignItems="stretch"
+      flexDirection="column"
+      flexWrap="nowrap"
+      justifyContent="flex-start"
+      alignItems="stretch"
+      className={classes.root}
     >
       <Box flexGrow={1} order={0} className={classes.container}>
         {speeches}

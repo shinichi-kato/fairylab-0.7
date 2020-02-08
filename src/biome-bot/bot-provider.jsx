@@ -389,6 +389,10 @@ export default function BotProvider(props){
 		return biomeBot.reply(text)
 	}
 
+	function handleHubReply(text){
+		return biomeBot.hubReply(text);
+	}
+
 	useEffect(()=>{
 		let loaded = false;
 		if(loaded){ return; }
@@ -469,6 +473,7 @@ export default function BotProvider(props){
 			downloadDialog:handleShowDownloadDialog,
 			clearMessage:handleClearMessage,
 			reply:handleReply,
+			hubReply:handleHubReply,
 		}}>
 			{showDownload !== false ?
 				<DownloadDialog 

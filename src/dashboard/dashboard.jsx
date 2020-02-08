@@ -72,7 +72,9 @@ export default function Dashboard(props){
 					</Button>
 				</Box>
 				<Box className={classes.buttonContainer}>
-					<Button className={classes.hubButton}>
+					<Button className={classes.hubButton}
+						onClick={props.toHub}
+					>
 						<img 
 							className={classes.buttonImage} 
 							src="icons/hub.svg" alt="HUB"/>

@@ -9,10 +9,13 @@ export function toTimestampString(timestamp){
 		ToString()は共通なのでこれを利用
 	
 	*/ 
-	const datestr = timestamp.toString();
+	if (timestamp) {
+		const datestr = timestamp.toString();
 	
-	const r = datestr.match(/seconds=([0-9]+)/);
-	// r = ["seconds=12453340","12453340"]
-	let d = new Date(r[1]*1000);
-	return	`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString()}`;
+		const r = datestr.match(/seconds=([0-9]+)/);
+		// r = ["seconds=12453340","12453340"]
+		let d = new Date(r[1]*1000);
+		return	`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString()}`;
+	}
+	return " ";
 }

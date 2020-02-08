@@ -7,6 +7,8 @@ import ScriptEditor from './editor/script-editor.jsx';
 import UserSettings from './authentication/user-settings.jsx';
 import BotDownload from './biome-bot/bot-download.jsx';
 import Home from './chat/home.jsx';
+import Hub from './chat/hub.jsx';
+
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -25,6 +27,7 @@ const parentPage={
 	'ScriptEditor' : 'Dashboard',
 	'BotDownload' : 'Dashboard',
 	'Home' : 'Dashboard',
+	'Hub' : 'Dashboard',
 }
 
 export default function Main(props){
@@ -45,6 +48,7 @@ export default function Main(props){
 		'Dashboard' : ()=>(
 			<Dashboard 
 				toHome={()=>setCurrentPage('Home')}
+				toHub={()=>setCurrentPage('Hub')}
 			/>
 		),
 		'UserSettings': ()=>(
@@ -65,6 +69,12 @@ export default function Main(props){
 		),
 		'Home' : () =>(
 			<Home firebase ={props.firebase}/>
+		),
+		'Hub' : () =>(
+			<Hub 
+				firebase ={props.firebase}
+				firestore = {props.firestoreRef}
+			/>
 		)
 	} 
 

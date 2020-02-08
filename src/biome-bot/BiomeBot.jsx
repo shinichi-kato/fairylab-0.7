@@ -168,7 +168,7 @@ export default class BiomeBot{
           if(result.score < 1-this.hub.generosity){
             break;
           }
-          text = result.text;
+          
 
           // hub retention
           if(Math.random() > this.hub.retention){
@@ -196,51 +196,58 @@ export default class BiomeBot{
 
   _partCircuit(message){
     
-    let reply = {text:null};
-      if(this.memory.queue.length !== 0){
-        result.text = this.memory.queue.shift();
-      }
-      else{
-        for(let i in this.currentParts){
-          let partName=this.currentParts[i];
-          let part = this.partContext[partName];
-          // availability check
-          if(Math.random() > part.availability){
-            // console.log("availability insufficient")
-            continue;
-          }
-
-          // generousity check
-          reply = part.replier(message,this.memory);
-          console.log("reply=",reply,"g=",part.generosity)
-          if(reply.score < 1-part.generosity){
-            // console.log(`generousity:score ${reply.score} insufficient`);
-            continue
-          }
-          
-          // 改行\nあったらqueueに送る
-          if(reply.text.indexOf('\n') !== -1){
-            const replies = reply.text.split('\n');
-						text = replies.shift();
-						this.memory.queue.push(replies);
-          }else{
-            text = reply.text;
-          }
-
-          // retention check
-          if(Math.random() > part.retention){
-            // このパートを末尾に
-            this.currentParts.slice(i,1);
-            this.currentParts.push(partName);
-            // currentPartsの順番を破壊するのでforループを抜ける
-            break;
-          }
+    let result = {text:null};
+    if(this.memory.queue.length !== 0){
+      result.text = this.memory.queue.shift();
+    }
+    else{
+      for(let i in this.currentParts){
+        let partName=this.currentParts[i];
+        let part = this.partContext[partName];
+        // availability check
+        if(Math.random() > part.availability){
+          // console.log("availability insufficient")
+          continue;
         }
-      }
 
-      this.dump();      
-      
-      return(reply);
+        // generousity check
+        let reply = part.replier(message,this.memory);
+        console.log("reply=",reply,"g=",part.generosity)
+        if(reply.score < 1-part.generosity){
+          // console.log(`generousity:score ${reply.score} insufficient`);
+          continue
+        }
+        
+        result = {...reply}
+
+        // 改行\nあったらqueueに送る
+        if(reply.text.indexOf('\n') !== -1){
+          const replies = reply.text.split('\n');
+          reply.text = replies.shift();
+          this.memory.queue.push(replies);
+        }
+
+        // retention check
+        if(Math.random() > part.retention){
+          // このパートを末尾に
+          this.currentParts.slice(i,1);
+          this.currentParts.push(partName);
+          // currentPartsの順番を破壊するのでforループを抜ける
+          break;
+        }
+
+        // retentionチェックがOKだったらこのパートを先頭に
+        this.currentParts.slice(i,1);
+        this.currentParts.unshift(partName);
+        // currentPartの順場案を破壊するのでループを抜ける
+        break;
+
+      }
+    }
+
+    this.dump();      
+    
+    return(result);
       
     
   }

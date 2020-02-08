@@ -36,7 +36,7 @@ export default function App() {
   const [firestore,setFirestore] = useState(null);
 
   function handleConnectFirestore(){
-    firestoreRef = firebase.firestore(app)
+    const firestoreRef = firebase.firestore(app)
     setFirestore(firestoreRef);
 
   } 

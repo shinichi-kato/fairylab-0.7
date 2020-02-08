@@ -14,7 +14,7 @@ const LOG_WINDOW = 100;
 
 const useStyles = makeStyles(theme => ({
   container: {
-   height:'calc( 100vh - 64px - 64px - 2px )',
+   height:'calc( 100vh - 64px - 48px )',
    overflowY:'scroll',
    overscrollBehavior:'auto',
    WebkitOverflowScrolling:'touch',
@@ -59,6 +59,10 @@ export default function Home(props){
   }
 
   function handleWriteMessage(text){
+    if(text === null){
+      return;
+    }
+    
     writeLog({
       displayName:user.displayName,
       photoURL:user.photoURL,
