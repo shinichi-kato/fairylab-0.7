@@ -13,6 +13,8 @@ import DictJsonEditor from './dict-json-editor.jsx';
 import ParameterInput from './parameter-input.jsx';
 import {getStrByteSize} from '../biome-bot/getStrByteSize.jsx';
 
+
+
 const typeNames=[
   {id:'sensor',label:'センサー'},
 ];
@@ -266,6 +268,7 @@ export default function PartEditor(props){
               dict={context.dictSource}
               updateDisabled={isInvalid}
               handleUpdate={handleUpdate}
+              handleCheckDictSource={props.handleCheckDictSource}
             />
             :
             <DictJsonEditor

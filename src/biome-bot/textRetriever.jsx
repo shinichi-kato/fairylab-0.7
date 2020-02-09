@@ -4,8 +4,9 @@ import {zeros,divide,apply,sum,dot,dotMultiply,
 
 export default class TextRetriever{
   constructor(dict){
-    if(dict === void 0){
-      this.vocab=null;  // 出現する全ワードのリスト
+    console.log(dict);
+    if(!dict || (isArray(dict) && dict.length !== 0 && dict[0].length === 0)){
+      this.vocab=[];  // 出現する全ワードのリスト
       this.idf=null; // 各ワードのidf値
       this.tfidf=null;  // tfidf行列
       this.table=null;  // tfidfの各行がdictのどの行に対応するかを格納したテーブル
@@ -129,7 +130,12 @@ export default class TextRetriever{
     // 内部表現のリストとして与えられたtextを使ってテキスト検索
     // tfidf,df,vocabを利用してtextに一番似ているdictの行番号を返す
     // wv
-    const wv = zeros(this.vocab.length);
+    const vocabLength = this.vocab.length;
+    if(vocabLength === 0){
+      return {index:0,score:0}
+    }
+
+    const wv = zeros(vocabLength);
 
     for(let word of text){
         let pos = this.vocab.indexOf(word);
@@ -168,4 +174,8 @@ export default class TextRetriever{
 
     return cand[randomInt(cand.length)];
   }
+}
+
+function isArray(obj){
+	return Object.prototype.toString.call(obj) === '[object Array]';
 }

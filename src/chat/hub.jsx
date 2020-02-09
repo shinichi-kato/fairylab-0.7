@@ -14,7 +14,7 @@ const CHAT_WINDOW = 12;
 
 const useStyles = makeStyles(theme => ({
   root:{
-    background: "linear-gradient(180deg, #1e5799 0%,#2989d8 50%,#207cca 58%,#3fba1d 71%,#4e8e4d 100%);" 
+    background: "linear-gradient(180deg, #8696a8 0%,#79a0bf 50%,#729bbe 58%,#7fbc6e 71%,#86a686 100%);" 
   },
   container: {
    height:'calc( 100vh - 64px - 48px  )',

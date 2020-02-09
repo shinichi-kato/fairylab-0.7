@@ -5,6 +5,8 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
 
+import {checkDictStructure} from '../biome-bot/part.jsx';
+
 const useStyles = makeStyles(theme => createStyles({
 	root: {
 		flexGrow: 1,
@@ -22,14 +24,20 @@ const useStyles = makeStyles(theme => createStyles({
 		padding: theme.spacing(1),
 		backgroundColor:"#C0C0C0",	
 	},
-	wideButton:{
-		width: "100%",
+	middleButton:{
+		width: "70%",
 	}
 }));
 
 export default function DictJsonEditor(props){
   const classes = useStyles();
   const [dict,setDict] = useState(props.dict)
+  const [message,setMessage] = useState(null);
+
+  function handleCheckDictStructure(){
+    const result = checkDictStructure(dict);
+    setMessage(result.error);
+  }
 
   return (
     <Box display="flex" flexDirection="column">
@@ -44,17 +52,21 @@ export default function DictJsonEditor(props){
           value={dict}
           onChange={e=>setDict(e.target.value)}
         />
-        </Paper>    
+        </Paper>   
+        {message} 
       </Box>  
       <Box className={classes.item}>
         <Button 
-          className={classes.wideButton}
+          className={classes.middleButton}
           size="large"
           variant="contained"
           color="primary"
           disabled = {props.updateDisabled}
           onClick={e=>props.handleUpdate(dict)}>
           OK
+        </Button>
+        <Button onClick={handleCheckDictStructure}>
+          文法チェック
         </Button>
       </Box>    
     </Box>

@@ -17,10 +17,9 @@ const useStyles = makeStyles(theme => ({
 	},
 	items: {
 		padding:theme.spacing(1),
-		width: "80%",
+		width: "95%",
 	},
 	listBox: {
-		padding:theme.spacing(1),
 		width: "85%",
 		height: 200,
     maxHeight: 360,
@@ -36,8 +35,8 @@ const useStyles = makeStyles(theme => ({
 		padding: 16,
 	},
 	avatar: {
-		width: 100,
-		height: 100
+		width: 80,
+		height: 80
 	},
 	description:{
 		width:"100%",
@@ -90,20 +89,22 @@ export default function DownloadDialog(props){
 			borderRadius={10}
 		>
 			<Box className={classes.items}>
-				<Typography variant="h6">
+				<Typography variant="h7
+				">
 					チャットボットを選んでください
 				</Typography>
 			</Box>
-			<Box className={classes.items}>
+			<Box className={classes.items} alignSelf="center">
 				{props.sorterSelector }
 			</Box>
-			<Box className={classes.listBox}>
+			<Box className={classes.listBox} alignSelf="center">
 				<List dense={true} >
 					{botItems}
 				</List>
 			</Box>
 			<Box className={classes.items}
 				display="flex"
+
 				flexDirection="row"
 			>
 				<Box>
@@ -129,7 +130,7 @@ export default function DownloadDialog(props){
 				
 			</Box>
 
-			<Box className={classes.items}>
+			<Box className={classes.items} alignSelf="center">
 				{props.message}
 				<Button 
 					className={classes.wideButton} 
@@ -140,9 +141,7 @@ export default function DownloadDialog(props){
 					onClick={handleDownload}>
 					ダウンロード
 				</Button>
-			</Box>
 			{!props.required && 
-				<Box className={classes.items}>
 					<Button
 						className={classes.wideButton}
 						size="large"
@@ -151,8 +150,8 @@ export default function DownloadDialog(props){
 					>
 						キャンセル
 					</Button>
+				}
 				</Box>
-			}
 		</Box>
 	)
 }

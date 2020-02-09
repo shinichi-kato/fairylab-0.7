@@ -41,6 +41,10 @@ const useStyles = makeStyles(theme => createStyles({
 	root: {
 		flexGrow: 1,
 		padding: theme.spacing(2),
+		height:'calc( 100vh - 64px   )',
+		overflowY:'scroll',
+		overscrollBehavior:'auto',
+		WebkitOverflowScrolling:'touch',
 	},
 	caption: {
 		
@@ -138,7 +142,7 @@ function reducer(state,action){
 					[newPartName]:{
 						type:"sensor",
 						availability: 1.0,
-						generosity: 0.01,
+						generosity: 0.9,
 						retention: 0.9,
 						dictSource:"",
 						_dictSourceByteSize:0,

@@ -40,7 +40,7 @@ export default function UserState(props){
           className={classes.avatar}
           src={state.photoURL} />
       </Box>
-      <Box alignSelf="cener">
+      <Box alignSelf="center">
         <Typography>
           {state.displayName}
         </Typography>

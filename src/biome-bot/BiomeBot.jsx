@@ -1,5 +1,5 @@
 // BiomeBotのコア
-import Part from './part.jsx';
+import Part,{checkDictStructure} from './part.jsx';
 
 export default class BiomeBot{
   /*
@@ -125,6 +125,7 @@ export default class BiomeBot{
      part.setup()
      this.partContext[settings.name] = part;
   }
+
 
   dump(){
     localStorage.setItem(`BiomeBot.memory`,JSON.stringify(this.memory));

@@ -31,23 +31,8 @@ export default class Part {
 			}
 		}
 
-		let dict =null;
-		
-		try{
-			dict = JSON.parse(source);
-		} 
-		catch(e){
-			if(e instanceof SyntaxError){
-				this.errorMessage = 
-					`辞書${this.name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
-				console.log(this.errorMessage)
-				console.log(source)
-				return false;
-			}
-		}
-
-		// コメント行(文字列だけの行)削除
-		let d = dict.filter(x=>typeof x !== "string");
+		const result = checkDictStructure(source);
+		this.errorMessage=result.error;
 
 		switch(this.type){
 			case 'sensor':{
@@ -55,10 +40,13 @@ export default class Part {
 					[ [["入力1","入力2"...] , ["出力1","出力2"...]] , ...]
 					となっている。TextRetrieverには内部表現化したリスト
 					[ [入力1を内部表現化したリスト,入力2を内部表現化したリスト...], ...]
-					を渡す.
+					を渡す。
+					
 				*/	
-				this.inDict = new TextRetriever(d.map(l=>internalRepr.from_inDict(l[0])));
-				this.outDict = d.map(l=>l[1]);
+				
+
+				this.inDict = new TextRetriever(result.dict.map(l=>internalRepr.from_inDict(l[0])));
+				this.outDict = result.dict.map(l=>l[1]);
 				break;
 			}
 			default: {
@@ -107,3 +95,91 @@ export default class Part {
 		}
 	}
 }
+
+
+function isArray(obj){
+	return Object.prototype.toString.call(obj) === '[object Array]';
+}
+
+export function checkDictStructure(source){
+		/*
+			辞書は
+			[
+				[
+					["in1","in2","in3"...],["out1","out2","out3"...]
+				]
+			]
+			という形式になっている。このデータ構造に一致しない部分はdictから削除するとともにエラーメッセージを返す
+		*/
+		let dict = null;
+		let errorMessage=null;
+		try{
+			dict = JSON.parse(source);
+		} 
+		catch(e){
+			if(e instanceof SyntaxError){
+				errorMessage = 
+					`辞書${this.name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
+				console.log(this.errorMessage)
+				return {dict: [[[],[]]],error:errorMessage}
+			}
+		}
+
+		let newDict = [];
+
+		if (isArray(dict)){
+			// 辞書全体
+			for (let i in dict){
+				let line = dict[i];
+
+				if (isArray(line) && line.length === 2){
+					// 一つの入力-出力ペア
+					let ins = line[0];
+					let outs = line[1];
+
+					if(isArray(ins)){
+						// 文字列のリスト
+						for(let j in ins){
+							if(typeof ins[j] !== 'string'){
+								errorMessage=`Error:${i}行の1番目(入力文字列)のリストに文字列以外が格納されています`;
+								if (newDict.length === 0){
+									return {dict:[[[],[]]],error:errorMessage}
+								}
+								return {dict:newDict,error:errorMessage};
+							}
+						}
+					}
+					if(isArray(outs)){
+						// 文字列のリスト
+						for(let j in outs){
+							if(typeof outs[j] !== 'string'){
+								errorMessage=`Error:${i}行の2番目(出力文字列)のリストに文字列以外が格納されています`;
+								if(newDict.length===0){
+									return {dict:[[[],[]]],error:errorMessage};
+								}
+								return {dict:newDict,error:errorMessage};
+							}
+						}
+					}
+					// 一つの行が正常だった
+					newDict.push(line);
+				}
+				else if(typeof line === 'string'){
+					// 文字列のみはコメントとして無視する
+				}
+				else {
+					errorMessage=`Error:${i}行が [[入力文字列リスト],[出力文字列リスト]] という形式になっていません`;
+					if(newDict.length===0){
+						return {dict:[[[],[]]],error:errorMessage};
+					}
+					return {dict:newDict,error:errorMessage};
+				}
+			}
+			return {dict:newDict,error:null};
+		}
+		else{
+			errorMessage=`Error:辞書が[ [[入力文字列リスト],[出力文字列リスト]], ... ]という形式になっていません`;
+			return {dict:[[[],[]]],error:errorMessage};
+		}
+	}
+

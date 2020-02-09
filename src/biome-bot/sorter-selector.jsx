@@ -11,11 +11,11 @@ export default function SorterSelector(props){
   }
 
 	return (
-    <ButtonGroup aria-label="sorter-selector">
+    <ButtonGroup aria-label="sorter-selector" size="small">
       {sorters.map((sorter,index)=>(
         <Button 
           key={index}
-          color={index===sorterIndex ? "primary" : "default"}
+          color={index===sorterIndex ? "primary" : "inherit"}
           variant={index===sorterIndex ? "contained": "default"}
           onClick={e=>handleClickButton(index)}    
         >

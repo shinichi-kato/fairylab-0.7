@@ -79,7 +79,7 @@ function setSampleBot(firebase,firestoreRef){
 		dictSource:`[
 			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
 			[["ばいばい","さようなら"],["ばいば〜い"]],
-			[["怒りっぽいと言われた"],["そうだったんですか。。。\n情熱的なんですね。"]]
+			[["怒りっぽいと言われた"],["そうだったんですか。。。情熱的なんですね。"]]
 		]`,
 	});
 
@@ -393,6 +393,7 @@ export default function BotProvider(props){
 		return biomeBot.hubReply(text);
 	}
 
+	
 	useEffect(()=>{
 		let loaded = false;
 		if(loaded){ return; }
