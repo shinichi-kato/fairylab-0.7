@@ -22,7 +22,11 @@ const typeNames=[
 const useStyles = makeStyles(theme => createStyles({
 	root: {
 		flexGrow: 1,
-		padding: theme.spacing(2),
+    padding: theme.spacing(2),
+    height:'calc( 100vh - 64px - 48px  )',
+    overflowY:'scroll',
+    overscrollBehavior:'auto',
+    WebkitOverflowScrolling:'touch',
 	},
 	caption: {
 		
@@ -46,7 +50,8 @@ const useStyles = makeStyles(theme => createStyles({
   },
   dictCaption:{
     padding:theme.spacing(1),
-  }
+  },
+
 }));
 
 
@@ -146,12 +151,13 @@ export default function PartEditor(props){
 
   function handleUpdate(dictSource){
     props.handleUpdatePart(name,{
+      name:state.name,
       type:state.type,
       availability:state.availability,
       generosity: state.generosity,
       retention: state.retention,
-      _isNameChanged:state.isNameChange,
-      _originalName:state.originalName,
+      _isNameChanged:state._isNameChanged,
+      _originalName:state._originalName,
       dictSource:dictSource,
       _dictSourceByteSize:getStrByteSize(dictSource),
     });
@@ -266,6 +272,7 @@ export default function PartEditor(props){
         {editorMode ? 
             <DictJsonEditor 
               dict={context.dictSource}
+              name={props.name}
               updateDisabled={isInvalid}
               handleUpdate={handleUpdate}
               handleCheckDictSource={props.handleCheckDictSource}

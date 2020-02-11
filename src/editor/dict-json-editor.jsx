@@ -4,6 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
+import Typography from '@material-ui/core/Typography';
 
 import {checkDictStructure} from '../biome-bot/part.jsx';
 
@@ -34,8 +35,18 @@ export default function DictJsonEditor(props){
   const [dict,setDict] = useState(props.dict)
   const [message,setMessage] = useState(null);
 
-  function handleCheckDictStructure(){
-    const result = checkDictStructure(dict);
+  function handleCheckDictStructure(props){
+    return new Promise((resolve,reject)=>{
+      resolve(
+        checkDictStructure(props.name,dict)
+      );
+    });
+  }
+
+  
+  function handleChangeDict(dict){
+    setDict(dict);
+    const result=checkDictStructure(props.name,dict);
     setMessage(result.error);
   }
 
@@ -50,10 +61,15 @@ export default function DictJsonEditor(props){
           multiline
           rows={22}
           value={dict}
-          onChange={e=>setDict(e.target.value)}
+          onChange={e=>handleChangeDict(e.target.value)}
         />
         </Paper>   
-        {message} 
+        {
+          message === "" ?
+          <Typography variant="caption">エラーはありません</Typography>
+          :
+          <Typography variant="caption" color="error">{message}</Typography>
+        }
       </Box>  
       <Box className={classes.item}>
         <Button 
@@ -65,9 +81,7 @@ export default function DictJsonEditor(props){
           onClick={e=>props.handleUpdate(dict)}>
           OK
         </Button>
-        <Button onClick={handleCheckDictStructure}>
-          文法チェック
-        </Button>
+        
       </Box>    
     </Box>
 

@@ -31,7 +31,7 @@ export default class Part {
 			}
 		}
 
-		const result = checkDictStructure(source);
+		const result = checkDictStructure(this.name,source);
 		this.errorMessage=result.error;
 
 		switch(this.type){
@@ -101,7 +101,7 @@ function isArray(obj){
 	return Object.prototype.toString.call(obj) === '[object Array]';
 }
 
-export function checkDictStructure(source){
+export function checkDictStructure(name,source){
 		/*
 			辞書は
 			[
@@ -119,8 +119,8 @@ export function checkDictStructure(source){
 		catch(e){
 			if(e instanceof SyntaxError){
 				errorMessage = 
-					`辞書${this.name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
-				console.log(this.errorMessage)
+					`辞書${name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
+				console.log(errorMessage)
 				return {dict: [[[],[]]],error:errorMessage}
 			}
 		}

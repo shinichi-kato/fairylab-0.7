@@ -193,16 +193,18 @@ function reducer(state,action){
 					throw Error(`part name ${action.name} invalid`);
 				}
 
-			parts.splice(pos,1,context.name);
+				parts.splice(pos,1,context.name);
 			}
-			
+			let partContexts = state.partContext;
+			delete partContexts[context._originalName];
+
 			return {
 				...state,
 				creatorName : action.user.displayName,
 				creatorUID: action.user.uid,	
 				parts:[...parts],
 				partContext:{
-					...state.partContext,
+					...partContexts,
 					[action.name]:{
 						type:context.type,
 						availability: context.availability,
