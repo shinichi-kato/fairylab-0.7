@@ -132,6 +132,16 @@ export default class BiomeBot{
     localStorage.setItem(`BiomeBot.currentParts`,JSON.stringify(this.currentParts));
   }
 
+  render(result,userMessage){
+    //result = this.render(result,message);
+    // 返答中の{userName}等を置き換え
+    if(result.text){
+      result.text = result.text.replace(/{userName}/g,userMessage.displayName);
+      result.text = result.text.replace(/{botName}/g,this.displayName);
+    }
+
+    return result;
+  }
 
   reply(message){
     /* 一対一チャットにおける返答生成 */
@@ -140,10 +150,13 @@ export default class BiomeBot{
       let result=this._partCircuit(message);
 
       this.dump();
-      
+
+      // 返答中の{userName}は現ユーザの名前に置き換え
+      result = this.render(result,message);
+
       resolve({
         botId:this.id,
-        text:result.text || "Bot Not Respond",
+        text:result.text || "・・・",
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -184,8 +197,10 @@ export default class BiomeBot{
         }
 
       }
+
       this.dump();
-      
+      result = this.render(result,message);
+
       resolve({
         botId:this.id,
         text:result.text,
@@ -213,7 +228,6 @@ export default class BiomeBot{
 
         // generousity check
         let reply = part.replier(message,this.memory);
-        console.log("reply=",reply,"g=",part.generosity)
         if(reply.score < 1-part.generosity){
           // console.log(`generousity:score ${reply.score} insufficient`);
           continue

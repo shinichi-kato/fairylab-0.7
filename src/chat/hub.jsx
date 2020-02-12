@@ -84,7 +84,7 @@ export default function Hub(props){
         // 最後の発言者がボット自身でなければ発言にトライする
         const lastItem = messages[messages.length-1];
         if(lastItem && lastItem.speakerId !== botId){
-          bot.hubReply(lastItem.text)
+          bot.hubReply(lastItem)
           .then(reply=>{
             if(reply.text !== null){
               firestore.collection("hubLog").add({

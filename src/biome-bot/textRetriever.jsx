@@ -4,7 +4,6 @@ import {zeros,divide,apply,sum,dot,dotMultiply,
 
 export default class TextRetriever{
   constructor(dict){
-    console.log(dict);
     if(!dict || (isArray(dict) && dict.length !== 0 && dict[0].length === 0)){
       this.vocab=[];  // 出現する全ワードのリスト
       this.idf=null; // 各ワードのidf値

@@ -80,7 +80,7 @@ export default class InternalRepr{
   {memory}のことを教えてよ　→ ["{memory}","の","こと","教えて","よ"]
 
   ・また「お母さん」や「母」、「(^_^)」のように表記のバリエーションがありつつセリフの意味に
-  重大な影響を及ぼすノードは　お母さん → _Mother_ , >_< →　_Kaomoji_cry_のように
+  重大な影響を及ぼすノードは　お母さん → {_Mother_} , >_< →　{_Kaomoji_cry_}のように
   タグ化する。
   ・さらに「猫が捕まえた」と「猫を捕まえた」の意味の違いを保持するため、単語＋助詞という並びが
   見つかったら「"猫","が"」ではなく「"猫","<猫:主語>"」という2ノードにする。
@@ -88,7 +88,7 @@ export default class InternalRepr{
   コマンドをノードに分離できなくなるため、予めURLエンコードし、最後にデコードを行う。
 
   例：お母さんが怒られた
-  ["_Mother","<_Mother_:が>","怒ら","れ","た"]
+  ["{_Mother_}","<{_Mother_}:が>","怒ら","れ","た"]
 
   ※「親に怒られた」というin辞書で「お父さんに怒られた」や「お母さんに怒られた」というユーザ入力にも
   自動的にヒットしてほしい。そのため「親＝親×1 + お父さん×0.7 + お母さん×0.7」というようにTFIDF
@@ -106,8 +106,10 @@ export default class InternalRepr{
     this.segmenter = new TinySegmenter();
   }
 
-  from_message(text){
-    let nodes = this.segmenter.segment(text);
+  from_message(message){
+    // messageにはユーザ名とテキストが格納されている。
+    // ユーザ名は{userName}に
+    let nodes = this.segmenter.segment(message.text);
     nodes = this.parse(nodes);
     return nodes;
   }

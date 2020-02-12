@@ -35,16 +35,19 @@ export default function DictJsonEditor(props){
   const [dict,setDict] = useState(props.dict)
   const [message,setMessage] = useState(null);
 
-  function handleCheckDictStructure(props){
+  function handleCheckDictStructure(name,dict){
+    setDict(dict);
+
     return new Promise((resolve,reject)=>{
       resolve(
-        checkDictStructure(props.name,dict)
+        checkDictStructure(name,dict)
       );
     });
   }
 
   
   function handleChangeDict(dict){
+    // いずれpromiseに改修のこと
     setDict(dict);
     const result=checkDictStructure(props.name,dict);
     setMessage(result.error);

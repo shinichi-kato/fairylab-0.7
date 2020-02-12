@@ -71,6 +71,8 @@ export default class Part {
 						text = cands[randomInt(cands.length)];
 					}
 
+					
+
 					return ({
 						name:this.name,
 						speakerId:this.id,

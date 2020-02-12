@@ -62,16 +62,17 @@ export default function Home(props){
     if(text === null){
       return;
     }
-    
-    writeLog({
+    const message={
       displayName:user.displayName,
       photoURL:user.photoURL,
       text:text,
       speakerId:user.uid,
       timestamp:toTimestampString(firebase.firestore.Timestamp.now()),
-    });
+    };
+
+    writeLog(message);
     
-    bot.reply(text)
+    bot.reply(message)
       .then(reply=>{
         if(reply.text !== null){
           writeLog({
