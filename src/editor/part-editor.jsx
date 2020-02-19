@@ -279,10 +279,12 @@ export default function PartEditor(props){
             />
             :
             <DictJsonEditor
-              dict={context.dictSource}
-              updateDisabled={isInvalid}
-              handleUpdate={handleUpdate}
-            />
+            dict={context.dictSource}
+            name={props.name}
+            updateDisabled={isInvalid}
+            handleUpdate={handleUpdate}
+            handleCheckDictSource={props.handleCheckDictSource}
+          />
           }
       </Grid>
 

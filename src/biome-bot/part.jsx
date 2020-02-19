@@ -17,8 +17,10 @@ export default class Part {
 		this.replier = ()=>{return "part.seutp()が実行されていません"};
 	}
 
-	compile(source,wantCompile){
-		// wantCompile:
+	compile(source,memory,wantCompile){
+		// source=辞書のソーステキスト,memory:人称のタグ化情報など
+
+		// wantCompile
 		// コンパイルを指示されておらず、キャッシュがあればそれを使用
 		//  現状ではinDictをシリアライズで来ていないので常にtrue
 		wantCompile = true;
@@ -31,7 +33,7 @@ export default class Part {
 			}
 		}
 
-		const result = checkDictStructure(this.name,source);
+		let result = checkDictStructure(this.name,source);
 		this.errorMessage=result.error;
 
 		switch(this.type){
@@ -43,9 +45,11 @@ export default class Part {
 					を渡す。
 					
 				*/	
-				
-
-				this.inDict = new TextRetriever(result.dict.map(l=>internalRepr.from_inDict(l[0])));
+				console.log("result=",result)
+				this.inDict = result.dict.map(l=>l[0]);
+				this.inDict = this._tagifyInDict(this.inDict,memory);
+				this.inDict = this.inDict.map(l=>internalRepr.from_inDict(l));
+				this.inDict = new TextRetriever(this.inDict);
 				this.outDict = result.dict.map(l=>l[1]);
 				break;
 			}
@@ -61,8 +65,10 @@ export default class Part {
 		switch(this.type){
 			case 'sensor':{
 				
-				this.replier=(message,state)=>{
+				this.replier=(message,memory)=>{
+					message = this._tagifyInMessage(message,memory);
 					const ir = internalRepr.from_message(message);
+
 					const result = this.inDict.retrieve(ir);
 					let cands= [];
 					let text = "not found";
@@ -71,15 +77,15 @@ export default class Part {
 						text = cands[randomInt(cands.length)];
 					}
 
-					
-
-					return ({
+					const reply={
 						name:this.name,
 						speakerId:this.id,
 						avatar:this.avatarId,
 						text:text,
 						score:result.score
-					});
+					};
+
+					return this._untagifyOutMessage(reply,memory);
 
 				};
 
@@ -96,7 +102,62 @@ export default class Part {
 			}
 		}
 	}
-}
+
+	_tagifyInDict(inDict,memory){
+		/* this.inDictに現れるボットを表す文字列を{bot}タグに置換する。
+			this.inDictに現れる「あなた」などの人称を{user}タグに置き換える。
+			
+		*/
+
+		for (let i in inDict){
+			let line = inDict[i];
+			for(let j in line){
+				let str = line[j];
+				for (let word of memory.inDictWordsForBot){
+					str = str.replace(new RegExp(word,"g"),"{bot}");
+				}
+				for (let word of memory.inDictWordsForUser){
+					str = str.replace(new RegExp(word,"g"),"{user}");
+				}
+				line[j] = str;
+			}
+			inDict[i] = line ;
+		}
+
+		return inDict;
+		/* this.outDictのレンダリングは出力直前に実行　*/
+
+	}
+
+	_tagifyInMessage(message,memory){
+		/*
+			ユーザの発言に含まれるボットを表す文字列を{bot}タグに置き換える。
+			同様に一人称を{user}に置き換える。
+
+			※ ユーザの発言に含まれるボットの名前の{botName}への置き換え、
+			ユーザ名の{userName}への置き換えは実行済みとする。
+		*/
+		let text = message.text;
+		for (let word of memory.inDictWordsForBot){
+			text = text.replace(new RegExp(word,"g"),"{bot}");
+		}
+		for (let word of memory.inDictWordsForUser){
+			text = text.replace(new RegExp(word,"g"),"{user}");
+		}
+		return {...message, text:text}
+
+	}
+
+	_untagifyOutMessage(message,memory){
+		let text = message.text;
+		text = text.replace(/{bot}/g,
+			memory.outDictBotInWords[randomInt(memory.outDictBotInWords.length)]);
+		text = text.replace(/{user}/g,
+			memory.outDictUserInWords[randomInt(memory.outDictUserInWords.length)]);		
+		return {...message, text:text}
+	}
+
+}	
 
 
 function isArray(obj){

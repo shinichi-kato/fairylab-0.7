@@ -7,12 +7,27 @@ import {AuthContext} from '../authentication/auth-provider.jsx';
 
 import {getStrByteSize} from './getStrByteSize.jsx';
 
+const initialMemory = {
+	inDictWordsForBot:[
+		'{botName}さん','{botName}君','{botName}氏',
+		'{botName}','あなた','おまえ','君'],
+	inDictWordsForUser:[
+		'{userName}','私','僕','俺'],
+	outDictBotInWords:[
+		'{botName}','私'
+	],
+	outDictUserInWords:[
+		'{userName}さん','あなた',
+	],
+};
+
 // hubでのボット発話を制御するパラメータ
 const hubParam={
 	availability: 0.6,
 	generosity: 0.3,
 	retention: 0.6,
 };
+
 
 const biomeBot = new BiomeBot(hubParam);
 const BOT_LIST_MAX_LEN=20;
@@ -48,6 +63,8 @@ const sorterSettings={
 	}
 };
 
+
+
 export const BotContext = createContext();
 
 
@@ -81,6 +98,11 @@ function setSampleBot(firebase,firestoreRef){
 			[["ばいばい","さようなら"],["ばいば〜い"]],
 			[["怒りっぽいと言われた"],["そうだったんですか。。。情熱的なんですね。"]]
 		]`,
+		memory:{
+			...initialMemory,
+			
+			//一般的な会話中の記憶は memory.runtimeにまとめて記憶
+		}
 	});
 
 	
@@ -88,6 +110,11 @@ function setSampleBot(firebase,firestoreRef){
 
 function initialState(){
 	// localStorageからbotをロード
+	let memory = JSON.parse(localStorage.getItem('bot.memory'));
+	if(!memory.inDictWordsForBot){
+		memory = initialMemory;
+	}
+
 	const data = {
 		id : localStorage.getItem('bot.id') || null,
 		displayName : localStorage.getItem('bot.displayName') || 'noname',
@@ -98,8 +125,9 @@ function initialState(){
 		published : localStorage.getItem('bot.published') || false,
 		description: localStorage.getItem('bot.description') || "",
 		parts : JSON.parse(localStorage.getItem('bot.parts')) || "",
-		memory : JSON.parse(localStorage.getItem('bot.memory')) || {},
+		memory : {...memory},
 	};
+
 
 	biomeBot.setParam({settings:data});
 
@@ -244,7 +272,7 @@ export default function BotProvider(props){
 						timestamp : d.timestamp,
 						parts : JSON.parse(d.parts),
 						likeCount : d.likeCount,
-						memory: {},
+						memory: JSON.parse(d.memory) || initialMemory,
 						
 					})
 				})
@@ -326,7 +354,7 @@ export default function BotProvider(props){
 			description:settings.description,
 			published:Boolean(settings.published),
 			parts:settings.parts,
-			memory:{},
+			memory:settings.memory || initialMemory,
 
 		};
 		

@@ -50,6 +50,24 @@ export default class BiomeBot{
     という構造とし、input11〜1nに近い入力文字列に対してoutput11~1nの中から
     ランダムに選んだ一つを返す。
 
+    ■■人称代名詞の置換
+    辞書の入力文字列、つまりユーザから受け取るセリフに現れるチャットボットの名前、
+    「あなた」「君」など会話相手のボットを示す言葉は、{you}というタグに置き換える。
+    また出力文字列、つまりボットの発言に含まれる{botNmae}はチャットボットの名前に、
+    {you}は「あなた」「君」などに、{userName}はユーザの名前に置換される。
+    これらのルールをリストにすると以下のようになる。
+
+    入力文字列をタグ化                                             タグ
+    --------------------------------------------------------------------
+    inDictWordsForBot: ボットを表す言葉　{botName}さん 君 など      {bot}
+    inDictWordsForUser:ユーザ自身を表す言葉 私 {userName} 僕など    {user}
+
+    タグを出力文字列化                               出力する文字列
+    --------------------------------------------------------
+    outDictBotInWords: ボットを表すタグ {bot}        ボットの名前,私,僕など
+                      ボット名を表すタグ {botName}  ボットの名前,私,僕など
+    outDictUserInWords:ユーザを表すタグ {user}       ユーザさん、{userName}さんなど
+
 
     ■■　多人数チャットにおけるチャットボットの動作について　■■
 
@@ -75,10 +93,10 @@ export default class BiomeBot{
 		これらは現バージョンでは固定の隠しパラメータだが、		いずれ親密度や体調で
 		変動するようにしたい。
     
+
   */
   constructor(hubParam){
     this.partContext=new Object();
-    this.memory = JSON.parse(localStorage.getItem('BiomeBot.memory')) || {queue:[]};
     this.currentParts = JSON.parse(localStorage.getItem('BiomeBot.currentParts')) || [];
     this.hub={
       availability : hubParam.availability,
@@ -105,8 +123,7 @@ export default class BiomeBot{
       this.currentParts = settings.parts;
 
     }else{
-      this.memory = JSON.parse(localStorage.getItem(`Biomebot.memory`)) ||
-        {...settings.memory };
+      this.memory = {...settings.memory };
       
         if(!("queue" in settings.memory)){
           this.memory.queue=[];
@@ -121,7 +138,7 @@ export default class BiomeBot{
 
   setPart({settings,forceReset=false}){
      let part = new Part(settings,forceReset);
-     part.compile(settings.dictSource)
+     part.compile(settings.dictSource,this.memory)
      part.setup()
      this.partContext[settings.name] = part;
   }
@@ -132,31 +149,32 @@ export default class BiomeBot{
     localStorage.setItem(`BiomeBot.currentParts`,JSON.stringify(this.currentParts));
   }
 
-  render(result,userMessage){
-    //result = this.render(result,message);
-    // 返答中の{userName}等を置き換え
-    if(result.text){
-      result.text = result.text.replace(/{userName}/g,userMessage.displayName);
-      result.text = result.text.replace(/{botName}/g,this.displayName);
-    }
-
-    return result;
-  }
 
   reply(message){
-    /* 一対一チャットにおける返答生成 */
+    /* message
+    displayName:reply.displayName,
+            photoURL:reply.photoURL,
+            text:reply.text,
+            speakerId:botId,
+            timestamp
+        を受け取り一対一チャットにおける返答を生成 */
 
     return new Promise((resolve,reject)=>{
-      let result=this._partCircuit(message);
+
+      
+
+      let result=this._partCircuit(
+        this._tagifyNames(message)) || "・・・";
 
       this.dump();
 
       // 返答中の{userName}は現ユーザの名前に置き換え
-      result = this.render(result,message);
+
+      result = this._untagifyNames(result,message);
 
       resolve({
         botId:this.id,
-        text:result.text || "・・・",
+        text:result.text,
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -178,7 +196,8 @@ export default class BiomeBot{
             break;
           }
           // hub generosity
-          result = this._partCircuit(message);
+          result = this._partCircuit(
+            this._tagifyNames(message));
           if(result.score < 1-this.hub.generosity){
             break;
           }
@@ -199,7 +218,7 @@ export default class BiomeBot{
       }
 
       this.dump();
-      result = this.render(result,message);
+      result = this._untagifyNames(result,message);
 
       resolve({
         botId:this.id,
@@ -265,5 +284,22 @@ export default class BiomeBot{
     return(result);
       
     
+  }
+
+  _tagifyNames(message){
+    /* ユーザ発言に含まれるユーザ名、ボット名をそれぞれ{userName},{botName}に置き換える */
+    let text = message.text || "";
+    text = text.replace(new RegExp(this.displayName,"g"),"{botName}");
+    text = text.replace(new RegExp(message.displayName,"g"),"{userName}");
+    return {...message,text:text};
+  }
+
+  _untagifyNames(result,message){
+    /* {userName},{botName}をユーザ名、ボット名に置き換える */
+    let text = result.text || "";
+    text = text.replace(/{botName}/g,this.displayName);
+    text = text.replace(/{userName}/g,message.displayName);
+    return {...result,text:text};
+
   }
 }
