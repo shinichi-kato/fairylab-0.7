@@ -148,15 +148,16 @@ function initialState(){
 
 		partContext[part] = {...context};
 		context.name=part;
-		biomeBot.setPart({settings:context});
-	}
+		// ここではbiomebot.setPartしない。
+		// setPartが非同期処理なので、initialStateでは扱えない
 
 	return ({
 		...data,
-		botState: '',
+		botState: 'notCompiled',
 		partContext : partContext,
-	})
-};
+		})
+	};
+}
 
 function reducer(state,action){
 
@@ -198,7 +199,12 @@ function reducer(state,action){
 			localStorage.setItem(`bot.part.${name}.retention`,dict.retention);
 			localStorage.setItem(`bot.part.${name}.dictSource`,dict.dictSource);
 			// _dictSourceByteSizeは毎回計算するので保存はしない。
-			biomeBot.setPart({settings:dict,forceReset:true});
+			// biomeBot.setPart({settings:dict,forceReset:true})
+			// .then(result=>{
+			// 	if(result){
+					
+			// 	}
+			// });
 
 			return {
 				...state,
@@ -299,6 +305,7 @@ export default function BotProvider(props){
 			UIの描画が先行する。UI側ではPartが更新される前のdefault状態でも動作するようにする。
 			それがうまく行かないとき、.get().then()が動作も応答もしないかのように見えるので注意。
 		*/
+		let partContexts=[];
 		firebase.firestore()
 			.collection('bot').doc(botId)
 			.collection('part')
@@ -310,13 +317,43 @@ export default function BotProvider(props){
 						name:doc.id,
 					};
 					dispatch({type:'setPart',dict:data});
-					biomeBot.setPart({settings:data,forceReset:true});
+					partContexts.push(data);
 				});
+				handleCompile(partContexts);
 			})
 			.catch(error=>{
 				setMessage(error);
 				setShowDownload('required');
 			})
+	}
+
+	function handleCompile(partContexts){
+		/* bot-providerに記憶したpartContextでbiomebotをコンパイル
+		Partのコンパイルは並列で行い、すべて終了したら状態の更新を行う
+		*/
+		setMessage("compiling");
+		Promise.resolve()
+			.then(()=>{
+				// Partのコンパイルは並列で処理する
+				return Promise.all(Object.keys(partContexts).map(part=>{
+					return new Promise((resolve,reject)=>{
+						console.log("compiling part",part)
+						resolve(biomeBot.setPart({settings:partContexts[part]}));
+
+					});
+				}));
+			})
+			.then(results=>{
+				//すべての結果がresultsに入る。
+				for(let result of results){
+					if(result !== 'ok'){
+						setMessage(result)
+						return;
+					}
+				}
+				setMessage("ok");
+
+			});
 	}
 
 	function saveParts(botId,partContext){
@@ -361,6 +398,7 @@ export default function BotProvider(props){
 		dispatch({type:'setParam',dict:newSettings});
 
 		for (let part of settings.parts){
+
 			dispatch({type:'setPart',dict:{
 				...settings.partContext[part],
 				name:part
@@ -444,10 +482,11 @@ export default function BotProvider(props){
 					})
 			}
 			
-
+			console.log("state.id",state.partContext)
 			if(state.id){
 				// 1. 起動時、localStorageにデータがあれば
 				//    firebase上のデータ更新を確認し、最新版をロードしてコンパイル
+				
 				let fsRef = firestoreRef
 					.collection('bot').doc(state.id);
 				fsRef.get().then(doc=>{
@@ -467,12 +506,15 @@ export default function BotProvider(props){
 							dispatch({type:'setParam', dict:data});
 							biomeBot.setParam({settings:data,forceReset:true});
 							loadParts(state.id,data.parts);
+							return;
 						}
-
-					}else{
-						// ローカルにあるボットがまだアップロードされていない
-						// -> 何もしない
 					}
+					
+					// ローカルにボットがあるが、まだアップロードされていない
+					// またはローカルが最新
+					// -> compile
+					handleCompile(state.partContext);
+					
 
 				})
 				.catch(error=>{

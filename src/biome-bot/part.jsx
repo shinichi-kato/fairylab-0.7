@@ -15,6 +15,7 @@ export default class Part {
 		this.inDict = [];
 		this.outDict = [];
 		this.replier = ()=>{return "part.seutp()が実行されていません"};
+	
 	}
 
 	compile(source,memory,wantCompile){
@@ -29,12 +30,14 @@ export default class Part {
 			this.outDict = JSON.parse(localStorage.getItem(`BiomeBot.{this.name}.outDict`)) || null;
 
 			if (this.inDict && this.outDict){
-				return;
+				return true;
 			}
 		}
 
 		let result = checkDictStructure(this.name,source);
-		this.errorMessage=result.error;
+		if(result.error){
+			return result.error;
+		}
 
 		switch(this.type){
 			case 'sensor':{
@@ -51,14 +54,16 @@ export default class Part {
 				this.inDict = this.inDict.map(l=>internalRepr.from_inDict(l));
 				this.inDict = new TextRetriever(this.inDict);
 				this.outDict = result.dict.map(l=>l[1]);
+				return "ok";
 				break;
 			}
 			default: {
 				this.inDict = [];
 				this.outDict = [];
-				this.errorMessage = `type ${this.type} は使用できません`
+				return `type ${this.type} は使用できません`;
 			}
 		}
+		return "ok";
 	}
 
 	setup(){

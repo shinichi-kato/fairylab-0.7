@@ -44,6 +44,7 @@ export default function UserState(props){
         <Typography>
           {state.displayName}
         </Typography>
+        {bot.message}
       </Box>
     </Box>
   )

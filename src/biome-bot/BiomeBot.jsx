@@ -104,6 +104,7 @@ export default class BiomeBot{
       retention : hubParam.retention,
       isActive : false
     };
+    
   }
 
   setParam({settings,forceReset=false}){
@@ -137,10 +138,14 @@ export default class BiomeBot{
   }
 
   setPart({settings,forceReset=false}){
-     let part = new Part(settings,forceReset);
-     part.compile(settings.dictSource,this.memory)
-     part.setup()
-     this.partContext[settings.name] = part;
+    let part = new Part(settings,forceReset);
+    let result = part.compile(settings.dictSource,this.memory)
+    if (result === 'ok'){
+      part.setup()
+      this.partContext[settings.name] = part;
+      
+     }
+     return result;
   }
 
 
