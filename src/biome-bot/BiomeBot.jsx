@@ -104,6 +104,8 @@ export default class BiomeBot{
       retention : hubParam.retention,
       isActive : false
     };
+    this.memory= {queue:[]};
+ 
     
   }
 
@@ -118,7 +120,7 @@ export default class BiomeBot{
 
     if(forceReset){
       this.memory = {
-        queue:this.memory.queue,
+        queue:this.memory.queue ,
         ...settings.memory 
       };
       this.currentParts = settings.parts;
@@ -235,7 +237,7 @@ export default class BiomeBot{
   }
 
   _partCircuit(message){
-    
+    console.log("currentParts",this.currentParts)
     let result = {text:null};
     if(this.memory.queue.length !== 0){
       result.text = this.memory.queue.shift();
@@ -243,7 +245,9 @@ export default class BiomeBot{
     else{
       for(let i in this.currentParts){
         let partName=this.currentParts[i];
+      
         let part = this.partContext[partName];
+        console.log("part=",part,"i=",i)
         // availability check
         if(Math.random() > part.availability){
           // console.log("availability insufficient")

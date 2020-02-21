@@ -55,7 +55,6 @@ export default class Part {
 				this.inDict = new TextRetriever(this.inDict);
 				this.outDict = result.dict.map(l=>l[1]);
 				return "ok";
-				break;
 			}
 			default: {
 				this.inDict = [];

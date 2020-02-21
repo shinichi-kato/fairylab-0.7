@@ -85,7 +85,7 @@ function setSampleBot(firebase,firestoreRef){
 		published : true,
 		parts: JSON.stringify(["greeting"]),
 		likeCount:0,
-		memory: JSON.stringify({}),
+		memory: JSON.stringify(initialMemory),
 	});
 
 	fsBotRef.collection('part').doc('greeting').set({
@@ -94,15 +94,11 @@ function setSampleBot(firebase,firestoreRef){
 		generosity: 0.1,
 		retention: 1,
 		dictSource:`[
-			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！","今日もお疲れ様です"]],
+			[["こんにちは","今日は","今晩は","こんばんは"],["こんにちは！{userName}さん！","今日もお疲れ様です"]],
 			[["ばいばい","さようなら"],["ばいば〜い"]],
 			[["怒りっぽいと言われた"],["そうだったんですか。。。情熱的なんですね。"]]
 		]`,
-		memory:{
-			...initialMemory,
-			
-			//一般的な会話中の記憶は memory.runtimeにまとめて記憶
-		}
+	
 	});
 
 	
@@ -110,8 +106,8 @@ function setSampleBot(firebase,firestoreRef){
 
 function initialState(){
 	// localStorageからbotをロード
-	let memory = JSON.parse(localStorage.getItem('bot.memory'));
-	if(!memory.inDictWordsForBot){
+	let memory = JSON.parse(localStorage.getItem('bot.memory')) || new Object();
+	if(!'inDictWordsForBot' in memory){
 		memory = initialMemory;
 	}
 
@@ -129,7 +125,7 @@ function initialState(){
 	};
 
 
-	biomeBot.setParam({settings:data});
+	biomeBot.setParam({settings:data,forceReset:true});
 
 	let partContext = new Object();
 	for (let part of data.parts) {
@@ -150,13 +146,14 @@ function initialState(){
 		context.name=part;
 		// ここではbiomebot.setPartしない。
 		// setPartが非同期処理なので、initialStateでは扱えない
+	}
 
 	return ({
 		...data,
 		botState: 'notCompiled',
 		partContext : partContext,
 		})
-	};
+	
 }
 
 function reducer(state,action){
@@ -242,6 +239,7 @@ export default function BotProvider(props){
 	const auth = useContext(AuthContext);
 
 
+
 	function handleChangeSorterIndex(index){
 		setSorterIndex(index);
 		fetchBotList(index);
@@ -267,6 +265,7 @@ export default function BotProvider(props){
 				let result=[];
 				snapshot.forEach(item=>{
 					const d=item.data();
+					console.log("data=",d);
 					result.push({
 						id : item.id,
 						displayName : item.id,	//仮の名前としてid名を使用
@@ -278,7 +277,7 @@ export default function BotProvider(props){
 						timestamp : d.timestamp,
 						parts : JSON.parse(d.parts),
 						likeCount : d.likeCount,
-						memory: JSON.parse(d.memory) || initialMemory,
+						memory: JSON.parse(d.memory) ||  initialMemory,
 						
 					})
 				})
@@ -305,7 +304,7 @@ export default function BotProvider(props){
 			UIの描画が先行する。UI側ではPartが更新される前のdefault状態でも動作するようにする。
 			それがうまく行かないとき、.get().then()が動作も応答もしないかのように見えるので注意。
 		*/
-		let partContexts=[];
+		let partContexts=new Object();
 		firebase.firestore()
 			.collection('bot').doc(botId)
 			.collection('part')
@@ -317,7 +316,7 @@ export default function BotProvider(props){
 						name:doc.id,
 					};
 					dispatch({type:'setPart',dict:data});
-					partContexts.push(data);
+					partContexts[doc.id] = {...data};
 				});
 				handleCompile(partContexts);
 			})
@@ -332,12 +331,14 @@ export default function BotProvider(props){
 		Partのコンパイルは並列で行い、すべて終了したら状態の更新を行う
 		*/
 		setMessage("compiling");
+		console.log("compiling",partContexts)
 		Promise.resolve()
 			.then(()=>{
 				// Partのコンパイルは並列で処理する
 				return Promise.all(Object.keys(partContexts).map(part=>{
 					return new Promise((resolve,reject)=>{
 						console.log("compiling part",part)
+						partContexts[part].name=part;
 						resolve(biomeBot.setPart({settings:partContexts[part]}));
 
 					});
@@ -427,6 +428,7 @@ export default function BotProvider(props){
 						// 上書き禁止メッセージを送る
 						newSettings.timestamp = firebase.firestore.FieldValue.serverTimestamp();
 						newSettings.parts = JSON.stringify(newSettings.parts);
+						newSettings.memory = JSON.stringify(newSettings.memory);
 
 						fsBotRef.set(newSettings);
 						saveParts(settings.id,settings.partContext);
