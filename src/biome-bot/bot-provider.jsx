@@ -406,6 +406,8 @@ export default function BotProvider(props){
 			}});
 		}
 
+		handleCompile(settings.partContext);
+
 
 		setMessage(`このデバイスに ${newSettings.id} を保存しました`)
 

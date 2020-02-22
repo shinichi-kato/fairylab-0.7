@@ -35,10 +35,9 @@ export default function DictJsonEditor(props){
   const [dict,setDict] = useState(props.dict)
   const [message,setMessage] = useState(null);
 
-  function handleCheckDictStructure(name,dict){
-    setDict(dict);
-
+  function promiseCheckDictStructure(name,dict){
     return new Promise((resolve,reject)=>{
+      console.log("chekiing")
       resolve(
         checkDictStructure(name,dict)
       );
@@ -49,8 +48,11 @@ export default function DictJsonEditor(props){
   function handleChangeDict(dict){
     // いずれpromiseに改修のこと
     setDict(dict);
-    const result=checkDictStructure(props.name,dict);
-    setMessage(result.error);
+    setMessage("チェック中...")
+    promiseCheckDictStructure(props.name,dict)
+    .then(result=>{
+      setMessage(result.error);
+    })
   }
 
   return (
@@ -68,7 +70,7 @@ export default function DictJsonEditor(props){
         />
         </Paper>   
         {
-          message === "" ?
+          message === null ?
           <Typography variant="caption">エラーはありません</Typography>
           :
           <Typography variant="caption" color="error">{message}</Typography>
@@ -80,7 +82,7 @@ export default function DictJsonEditor(props){
           size="large"
           variant="contained"
           color="primary"
-          disabled = {props.updateDisabled}
+          disabled = {props.updateDisabled || message !== null}
           onClick={e=>props.handleUpdate(dict)}>
           OK
         </Button>

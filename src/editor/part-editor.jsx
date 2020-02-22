@@ -159,7 +159,7 @@ export default function PartEditor(props){
       _isNameChanged:state._isNameChanged,
       _originalName:state._originalName,
       dictSource:dictSource,
-      _dictSourceByteSize:getStrByteSize(dictSource),
+      // _dictSourceByteSize:getStrByteSize(dictSource),
     });
   }
 
@@ -275,7 +275,6 @@ export default function PartEditor(props){
               name={props.name}
               updateDisabled={isInvalid}
               handleUpdate={handleUpdate}
-              handleCheckDictSource={props.handleCheckDictSource}
             />
             :
             <DictJsonEditor
@@ -283,7 +282,6 @@ export default function PartEditor(props){
             name={props.name}
             updateDisabled={isInvalid}
             handleUpdate={handleUpdate}
-            handleCheckDictSource={props.handleCheckDictSource}
           />
           }
       </Grid>

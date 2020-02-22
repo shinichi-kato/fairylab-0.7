@@ -205,7 +205,7 @@ function reducer(state,action){
 				parts:[...parts],
 				partContext:{
 					...partContexts,
-					[action.name]:{
+					[context.name]:{
 						type:context.type,
 						availability: context.availability,
 						generosity: context.generosity,
