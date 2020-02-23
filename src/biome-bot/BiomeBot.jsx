@@ -156,6 +156,8 @@ export default class BiomeBot{
     localStorage.setItem(`BiomeBot.currentParts`,JSON.stringify(this.currentParts));
   }
 
+  
+
 
   reply(message){
     /* message

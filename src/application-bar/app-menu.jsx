@@ -84,11 +84,18 @@ function AppMenuDialog(props){
           </Box>
           <Box>
             <Button className={classes.wideButton}
+              onClick={e=>localStorage.clear()}
+            >
+              ブラウザ保存情報の消去
+            </Button>
+          </Box>
+          <Box>
+            <Button className={classes.wideButton}
               onClick={handleSignOut}
             >
               サインアウト
             </Button>
-          </Box>
+          </Box>         
           <Box alignSelf="center">
             <Typography variant="subtitle1">ver {version}</Typography>
           </Box>

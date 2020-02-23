@@ -106,8 +106,10 @@ function setSampleBot(firebase,firestoreRef){
 
 function initialState(){
 	// localStorageからbotをロード
-	let memory = JSON.parse(localStorage.getItem('bot.memory')) || new Object();
-	if(!'inDictWordsForBot' in memory){
+	let memory = JSON.parse(localStorage.getItem('bot.memory'))  ;
+	if(typeof(memory) === 'string' || memory === null){
+		memory = initialMemory;
+	}else	if(!'inDictWordsForBot' in memory){
 		memory = initialMemory;
 	}
 
@@ -120,7 +122,7 @@ function initialState(){
 		timestamp : localStorage.getItem('bot.timestamp') || '',
 		published : localStorage.getItem('bot.published') || false,
 		description: localStorage.getItem('bot.description') || "",
-		parts : JSON.parse(localStorage.getItem('bot.parts')) || "",
+		parts : JSON.parse(localStorage.getItem('bot.parts')) || [],
 		memory : {...memory},
 	};
 
@@ -131,7 +133,7 @@ function initialState(){
 	for (let part of data.parts) {
 
 		let context = {
-			type : localStorage.getItem(`bot.part.${part}.type`) || "",
+			type : localStorage.getItem(`bot.part.${part}.type`) || null,
 			availability : Number(localStorage.getItem(`bot.part.${part}.availability`)) || 0,
 			generosity : Number(localStorage.getItem(`bot.part.${part}.generosity`)) || 0,
 			retention : Number(localStorage.getItem(`bot.part.${part}.retention`)) || 0,
@@ -146,6 +148,13 @@ function initialState(){
 		context.name=part;
 		// ここではbiomebot.setPartしない。
 		// setPartが非同期処理なので、initialStateでは扱えない
+
+		// 緊急脱出：アプリのバージョン違いによりデータが整合しない場合、起動できなくなる
+		// その場合localStorageをリセット
+		if(context.type === null){
+			localStorage.clear();
+			window.location.reload();
+		}
 	}
 
 	return ({
@@ -265,7 +274,6 @@ export default function BotProvider(props){
 				let result=[];
 				snapshot.forEach(item=>{
 					const d=item.data();
-					console.log("data=",d);
 					result.push({
 						id : item.id,
 						displayName : item.id,	//仮の名前としてid名を使用
@@ -391,8 +399,8 @@ export default function BotProvider(props){
 			timestamp:firebase.firestore.Timestamp.now(),
 			description:settings.description,
 			published:Boolean(settings.published),
-			parts:settings.parts,
-			memory:settings.memory || initialMemory,
+			parts:settings.parts,	// ローカル保存用でここではstringifyしない
+			memory:settings.memory || initialMemory,	//ローカル保存用でここではstringifyしない
 
 		};
 		
@@ -448,6 +456,13 @@ export default function BotProvider(props){
 	function handleShowDownloadDialog(){
 		fetchBotList(sorterIndex);
 		setShowDownload('notRequired')
+	}
+
+	function handleDelete(id){
+		// cloud functionで実装。
+		// 次のバージョンで実装
+		// https://firebase.google.com/docs/firestore/solutions/delete-collections?hl=ja
+
 	}
 
 	function handleClose(){
@@ -545,6 +560,7 @@ export default function BotProvider(props){
 			message:message,
 			state:state,
 			handleSave:handleSave,
+			handleDelete:handleDelete,
 			downloadDialog:handleShowDownloadDialog,
 			clearMessage:handleClearMessage,
 			reply:handleReply,

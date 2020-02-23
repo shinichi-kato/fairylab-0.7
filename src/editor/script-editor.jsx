@@ -1,5 +1,5 @@
 import React,{useState,useReducer,useContext} from 'react';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles, withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -36,6 +36,16 @@ function toTimestampString(timestamp){
 	let d = new Date(r[1]*1000);
 	return	`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString()}`;
 }
+
+const WarningButton = withStyles(theme => ({
+  root: {
+    color: theme.palette.warning.contrastText,
+    backgroundColor: theme.palette.warning.main,
+    '&:hover': {
+      backgroundColor: theme.palette.warning.main,
+    },
+  },
+}))(Button);
 
 const useStyles = makeStyles(theme => createStyles({
 	root: {
@@ -248,6 +258,13 @@ function reducer(state,action){
 	}
 }
 
+/*--------------------------------------------------
+
+ Script Editor
+
+----------------------------------------------------*/
+
+
 export default function ScriptEditor(props){
 	const classes = useStyles();
 	const bot = useContext(BotContext);
@@ -271,6 +288,9 @@ export default function ScriptEditor(props){
 		props.toParentPage();
 	}
 
+	function handleDelete(){
+		bot.handleDelete(state.id)
+	}
 
 	function handleAddPart(e){ dispatch({type:'appendNewPart'}); }
 
@@ -302,6 +322,7 @@ export default function ScriptEditor(props){
 
 
 	const fieldUnsatisfied = state.displayName === "" || state.id === "";
+	const botUnowned = auth.user.uid !== state.creatorUID;
 
 	if(editingPart !== null){
 		return (
@@ -479,6 +500,21 @@ export default function ScriptEditor(props){
 					{ saved ? "OK" : "キャンセル" }
 				</Button>
 			</Grid>		
+			{/* <Grid item xs={12}>
+				<Typography color="error">チャットボットの削除</Typography>
+			</Grid>
+			<Grid item xs={12}>
+				<WarningButton className={classes.wideButton}
+					size="large"
+					onClick={handleDelete}
+					disabled={botUnowned}
+				>
+					{botUnowned ? "他ユーザのボットは削除できません" : 
+						state.id+"をアップロード先から削除"
+					}
+					
+				</Button>
+			</Grid>		 */}
 		</Grid>
 	)
 }

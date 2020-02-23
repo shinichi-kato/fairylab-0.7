@@ -48,12 +48,12 @@ export default class Part {
 					を渡す。
 					
 				*/	
-				console.log("result=",result)
 				this.inDict = result.dict.map(l=>l[0]);
 				this.inDict = this._tagifyInDict(this.inDict,memory);
 				this.inDict = this.inDict.map(l=>internalRepr.from_inDict(l));
 				this.inDict = new TextRetriever(this.inDict);
 				this.outDict = result.dict.map(l=>l[1]);
+				console.log("compile end")
 				return "ok";
 			}
 			default: {
