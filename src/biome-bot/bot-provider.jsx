@@ -149,12 +149,7 @@ function initialState(){
 		// ここではbiomebot.setPartしない。
 		// setPartが非同期処理なので、initialStateでは扱えない
 
-		// 緊急脱出：アプリのバージョン違いによりデータが整合しない場合、起動できなくなる
-		// その場合localStorageをリセット
-		if(context.type === null){
-			localStorage.clear();
-			window.location.reload();
-		}
+
 	}
 
 	return ({
