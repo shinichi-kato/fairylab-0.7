@@ -55,26 +55,31 @@ export default class TextRetriever{
 
     this.table=[];
     let squeezedDict=[];
+    this.vocab = new Object();
+
     for(let i=0,l=dict.length; i<l; i++){
       let line = dict[i];
 
-      squeezedDict = squeezedDict.concat(line);
+      squeezedDict.push(...line);
 
       for(let j=0,m=line.length; j<m; j++){
           this.table.push(i);
+          for(let word of line[j]){
+            this.vocab[word] = true;
+          }
       }
 
     }
 
-    // vocabの生成
-    this.vocab = new Object();
+    // // vocabの生成
+    // this.vocab = new Object();
 
-    for(let i=0,l=squeezedDict.length; i<l; i++){
-      const line = squeezedDict[i];
-      for(let word of line){
-        this.vocab[word] = true;
-      }
-    }
+    // for(let i=0,l=squeezedDict.length; i<l; i++){
+
+    //   for(let word of squeezedDict[i]){
+    //     this.vocab[word] = true;
+    //   }
+    // }
     this.vocab = Object.keys(this.vocab);
 
     // """ Term Frequency: 各行内での単語の出現頻度
@@ -84,11 +89,8 @@ export default class TextRetriever{
     // wv
     this.wv = zeros(squeezedDict.length,this.vocab.length);
     for (let i=0,l=squeezedDict.length; i<l; i++){
-      const line = squeezedDict[i];
-      // line[0]:in_script, line[1]:out_script
-      //ここでinternalRepr
 
-      for(let word of line){
+      for(let word of squeezedDict[i]){
           let pos = this.vocab.indexOf(word);
           if(pos !== -1){
             this.wv.set([i,pos],this.wv.get([i,pos])+1);

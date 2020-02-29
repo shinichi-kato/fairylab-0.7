@@ -135,7 +135,7 @@ export default class InternalRepr{
       switch(state) {
         case 0 : {
           // clear
-          line = line.concat(buff);
+          line.push(...buff);
           buff.length = 0;
           continue;
         }

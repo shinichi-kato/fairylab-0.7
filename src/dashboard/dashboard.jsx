@@ -3,6 +3,11 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import ImportContactsIcon from '@material-ui/icons/ImportContacts';
+
+
 
 import UserState from './user-state.jsx';
 import BotState from './bot-state.jsx';
@@ -34,6 +39,10 @@ const useStyles = makeStyles(theme => createStyles({
 	},
 	buttonContainer: {
 	},
+	docContainer: {
+		paddingTop: theme.spacing(5),
+		paddingBottom: theme.spacing(5),
+	}
  }));
 
 export default function Dashboard(props){
@@ -56,6 +65,22 @@ export default function Dashboard(props){
 				<Box>
 					<BotState />
 				</Box>
+			</Box>
+			<Box className={classes.docContainer}
+				alignSelf="center"
+			>
+				<Typography variant="h5">
+				
+				<Link 
+					href="docs/index.html" 
+					color="primary"
+					target="_blank"
+					rel="noopener">
+				<ImportContactsIcon/>チャットボットのしくみ
+				</Link>
+				</Typography>
+				
+				 
 			</Box>
 			<Box 
 				display="flex"
