@@ -181,12 +181,14 @@ export default class BiomeBot{
 
       // 返答中の{userName}は現ユーザの名前に置き換え
 
-      result = this._untagifyNames(result,message);
+      let text = result.text;
+      text = this._untagify(text);
+      text = this._untagifyNames(result,text,message);
       
 
       resolve({
         botId:this.id,
-        text:this._untagify(result.text),
+        text:text,
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -230,11 +232,13 @@ export default class BiomeBot{
       }
 
       this.dump();
-      result = this._untagifyNames(result,message);
+      let text = result.text;
+      text = this._untagify(text);
+      text = this._untagifyNames(result,text,message);
 
       resolve({
         botId:this.id,
-        text:this._untagify(result.text),
+        text:text,
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -242,7 +246,6 @@ export default class BiomeBot{
   }
 
   _partCircuit(message){
-    console.log("currentParts",this.currentParts)
     let result = {text:null};
     if(this.memory.queue.length !== 0){
       result.text = this.memory.queue.shift();
@@ -308,12 +311,11 @@ export default class BiomeBot{
     return {...message,text:text};
   }
 
-  _untagifyNames(result,message){
+  _untagifyNames(result,text,message){
     /* {userName},{botName}をユーザ名、ボット名に置き換える */
-    let text = result.text || "";
     text = text.replace(/{botName}/g,this.displayName);
     text = text.replace(/{userName}/g,message.displayName);
-    return {...result,text:text};
+    return text;
 
   }
 
