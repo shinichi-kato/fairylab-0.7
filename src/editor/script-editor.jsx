@@ -12,6 +12,7 @@ import SaveIcon from '@material-ui/icons/SaveAlt';
 import PartsList from './parts-list.jsx';
 import PartEditor from './part-editor.jsx';
 import AvatarSelector from './avatar-selector.jsx';
+import MemoryEditor from './memory-editor.jsx';
 
 import {BotContext} from '../biome-bot/bot-provider.jsx';
 import {AuthContext} from '../authentication/auth-provider.jsx';
@@ -133,6 +134,13 @@ function reducer(state,action){
 			return {
 				...state,
 				published : action.published,
+			}
+		}
+
+		case 'setMemory' :{
+			return {
+				...state,
+				memory: action.memory,
 			}
 		}
 		
@@ -272,6 +280,7 @@ export default function ScriptEditor(props){
 	const [state,dispatch] = useReducer(reducer,initialState(bot.state));
 	const [saved,setSaved] = useState(false);
 	const [editingPart,setEditingPart] = useState(null);
+	const [editingMemory,setEditingMemory] = useState(null);
 
 	function handleSave(e){
 		bot.handleSave(state);
@@ -320,9 +329,28 @@ export default function ScriptEditor(props){
 		dispatch({type:'deletePart',index:index});
 	}
 
+	function handleEditMemory(){
+		setEditingMemory(true);
+	}
+
+	function handleChangeMemory(memory){
+		dispatch({type:'setMemory',memory:memory});
+		setEditingMemory(false);
+	}
+
 
 	const fieldUnsatisfied = state.displayName === "" || state.id === "";
 	const botUnowned = auth.user.uid !== state.creatorUID;
+	if(editingMemory){
+		return (
+			<MemoryEditor 
+				memory={state.memory}
+				botName={state.displayName}
+				userName={auth.user.displayName}
+				handleChangeMemory={handleChangeMemory}
+			/>
+		)
+	}
 
 	if(editingPart !== null){
 		return (
@@ -340,10 +368,10 @@ export default function ScriptEditor(props){
 		 className={classes.root}
 		 spacing={1}
 		 alignContent="flex-start">
-			<Grid item xs={6}>
+			<Grid item xs={5}>
 				<Typography 
 					variant="body2">
-				チャットボットの名前
+				名前
 				</Typography>
 				<Paper className={classes.textField}>
 					<InputBase 
@@ -358,7 +386,7 @@ export default function ScriptEditor(props){
 					/>
 				</Paper>
 			</Grid>
-			<Grid item xs={6}>
+			<Grid item xs={7}>
 				<Typography variant="body2">
 					チャットボットの公開状態
 				</Typography>
@@ -380,10 +408,10 @@ export default function ScriptEditor(props){
 					</Button>
 				</ButtonGroup>
 			</Grid>
-			<Grid item xs={6}>
+			<Grid item xs={5}>
 			<Typography 
 					variant="body2">
-				チャットボットの型式
+				チャットボット型式
 				</Typography>
 				<Paper className={classes.textField}>
 					<InputBase 
@@ -398,7 +426,7 @@ export default function ScriptEditor(props){
 					/>
 				</Paper>
 			</Grid>
-			<Grid item xs={6}>
+			<Grid item xs={7}>
 				<Typography	
 					variant="body2">
 						アイコン
@@ -411,7 +439,7 @@ export default function ScriptEditor(props){
 						user:auth.user,
 						})} />
 			</Grid>
-			<Grid item xs={6}>
+			<Grid item xs={5}>
 				<Typography variant="body2">
 					作者
 				</Typography>
@@ -419,7 +447,7 @@ export default function ScriptEditor(props){
 					{state.creatorName}
 				</Paper>				
 			</Grid>
-			<Grid item xs={6}>
+			<Grid item xs={7}>
 				<Typography variant="body2">
 					前回保存時刻
 				</Typography>
@@ -445,6 +473,13 @@ export default function ScriptEditor(props){
 							description:e.target.value})}
 					/>
 				</Paper>
+			</Grid>
+			<Grid item xs={12}>
+				<Button 
+					variant="outlined"
+					onClick={e=>handleEditMemory()}>
+						メモリーの編集
+				</Button>
 			</Grid>
 			<Grid item xs={12}>
 				<Typography variant="body2">

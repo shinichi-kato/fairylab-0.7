@@ -104,7 +104,8 @@ export default class BiomeBot{
       retention : hubParam.retention,
       isActive : false
     };
-    this.memory= {queue:[]};
+    this.memory= {queue:[],tags:[]};
+    this.tagKeys=[];
  
     
   }
@@ -136,6 +137,7 @@ export default class BiomeBot{
           this.currentParts = [...this.parts];
         }
     }
+    this.tagKeys = Object.keys(this.memory.tags);
     
   }
 
@@ -180,10 +182,11 @@ export default class BiomeBot{
       // 返答中の{userName}は現ユーザの名前に置き換え
 
       result = this._untagifyNames(result,message);
+      
 
       resolve({
         botId:this.id,
-        text:result.text,
+        text:this._untagify(result.text),
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -231,7 +234,7 @@ export default class BiomeBot{
 
       resolve({
         botId:this.id,
-        text:result.text,
+        text:this._untagify(result.text),
         displayName:this.displayName,
         photoURL:this.photoURL,
       });
@@ -313,4 +316,27 @@ export default class BiomeBot{
     return {...result,text:text};
 
   }
+
+  _untagify(text){
+    /* messageに含まれるタグを文字列に戻す再帰的処理 */
+    for (let tag of this.tagKeys){
+      if(text.indexOf(tag) !== -1){
+        text = text.replace(/(\{[a-zA-Z0-9]+\})/g,(whole,tag)=>(this._expand(tag)));
+      }
+    }
+    return text;
+  }
+    
+ 
+
+  _expand(tag){
+    const items = this.memory.tags[tag];
+    if(!items){ return tag}
+   let item = items[Math.floor( Math.random() * items.length)];
+    
+    item = item.replace(/(\{[a-zA-Z0-9]+\})/g,(whole,tag)=>(this._expand(tag))
+    )
+    return item
+  }
+  
 }

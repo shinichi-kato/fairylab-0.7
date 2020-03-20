@@ -19,6 +19,7 @@ const initialMemory = {
 	outDictUserInWords:[
 		'{userName}さん','あなた',
 	],
+	tags:{'{example}':['例']},
 };
 
 // hubでのボット発話を制御するパラメータ
@@ -109,7 +110,7 @@ function initialState(){
 	let memory = JSON.parse(localStorage.getItem('bot.memory'))  ;
 	if(typeof(memory) === 'string' || memory === null){
 		memory = initialMemory;
-	}else	if(!'inDictWordsForBot' in memory){
+	}else	if(!'tags' in memory){
 		memory = initialMemory;
 	}
 
