@@ -172,19 +172,33 @@ export default class BiomeBot{
 
     return new Promise((resolve,reject)=>{
 
+      let text = "";
+      if(this.memory.queue.length !== 0){
+        // queueがあったらそれを使う
+
+        text = this.memory.queue.shift();
+      }
+      else{
+
+        let result=this._partCircuit(
+          this._tagifyNames(message)) || "・・・";
+  
+        text = result.text;
+
+        // 返答中のタグを展開
+        text = this._untagify(text);
+        text = this._untagifyNames(result,text,message);
+
+        // <BR>があったらqueue化
+        if(text.indexOf('<BR>') !== -1){
+          const texts = text.split('<BR>');
+          text = texts.shift();
+          this.meemory.queue.push(text);
+        }
+    
+      }
       
-
-      let result=this._partCircuit(
-        this._tagifyNames(message)) || "・・・";
-
       this.dump();
-
-      // 返答中の{userName}は現ユーザの名前に置き換え
-
-      let text = result.text;
-      text = this._untagify(text);
-      text = this._untagifyNames(result,text,message);
-      
 
       resolve({
         botId:this.id,
@@ -231,10 +245,19 @@ export default class BiomeBot{
 
       }
 
-      this.dump();
+
       let text = result.text;
       text = this._untagify(text);
       text = this._untagifyNames(result,text,message);
+
+      // <BR>があったらqueue化
+      if(text.indexOf('<BR>') !== -1){
+        const texts = text.split('<BR>');
+        text = texts.shift();
+        this.meemory.queue.push(text);
+      }
+
+      this.dump();
 
       resolve({
         botId:this.id,
@@ -272,8 +295,8 @@ export default class BiomeBot{
         result = {...reply}
 
         // 改行\nあったらqueueに送る
-        if(reply.text.indexOf('\n') !== -1){
-          const replies = reply.text.split('\n');
+        if(reply.text.indexOf('<BR>') !== -1){
+          const replies = reply.text.split('<BR>');
           reply.text = replies.shift();
           this.memory.queue.push(replies);
         }
@@ -321,9 +344,11 @@ export default class BiomeBot{
 
   _untagify(text){
     /* messageに含まれるタグを文字列に戻す再帰的処理 */
-    for (let tag of this.tagKeys){
-      if(text.indexOf(tag) !== -1){
-        text = text.replace(/(\{[a-zA-Z0-9]+\})/g,(whole,tag)=>(this._expand(tag)));
+    if(text){
+      for (let tag of this.tagKeys){
+        if(text.indexOf(tag) !== -1){
+          text = text.replace(/(\{[a-zA-Z0-9]+\})/g,(whole,tag)=>(this._expand(tag)));
+        }
       }
     }
     return text;
@@ -340,5 +365,6 @@ export default class BiomeBot{
     )
     return item
   }
-  
+
+ 
 }
