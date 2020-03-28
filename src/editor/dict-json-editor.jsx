@@ -37,7 +37,6 @@ export default function DictJsonEditor(props){
 
   function promiseCheckDictStructure(name,dict){
     return new Promise((resolve,reject)=>{
-      console.log("chekiing")
       resolve(
         checkDictStructure(name,dict)
       );

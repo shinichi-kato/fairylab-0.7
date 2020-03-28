@@ -2,8 +2,6 @@ import React ,{useState} from 'react';
 import { makeStyles, withStyles, createStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
@@ -16,23 +14,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import Popover from '@material-ui/core/Popover';
 
-
-const fireStoreByteMaxSize = 1048487;
-const sizeDisplayFactor = 100 / Math.sqrt(fireStoreByteMaxSize);
-
-function dictSizeScale(size){
-  /*
-    辞書のサイズを0-100でprogressバーに表示するための換算。
-    サイズはsqrtスケールとし、fireStoreのバイト型が
-    最大 1,048,487 バイト（1 MiB～89 バイト）
-    であるため、これが100となるように換算する。
-    つまり    
-    value={Math.sqrt(size)/Math.sqrt(fireStoreByteMaxSize)*100
-    となる
-  */
-    return Math.sqrt(size)*sizeDisplayFactor;
-}
-
+import DictSizeProgress from './dict-size-progress.jsx';
 
 
 const useStyles = makeStyles(theme => createStyles({
@@ -68,24 +50,6 @@ const useStyles = makeStyles(theme => createStyles({
 
 }));
 
-
-const DictSizeProgress = withStyles({
-  root: {
-    height: 14,
-    backgroundColor: '#999999',
-    borderRadius: 6,
-  },
-  bar: {
-    backgroundColor: '#2e7d32',
-    borderRadius: 6,
-  }
-})(LinearProgress);
-
-const ParameterTooltip = withStyles({
-  tooltip:{
-    fontSize: 14,
-  }
-})(Tooltip);
 
 
 function PartCard(props){
@@ -135,14 +99,7 @@ function PartCard(props){
                 辞書
               </Box>
               <Box className={classes.progress}>
-                <ParameterTooltip 
-                  title={`${_dictSourceByteSize.toFixed(2)} バイト`} 
-                  arrow>
-                  <DictSizeProgress 
-                    variant="determinate"
-                    value={dictSizeScale(_dictSourceByteSize)}
-                  />
-                </ParameterTooltip>
+                <DictSizeProgress name={name} size={_dictSourceByteSize}/>
               </Box>
             </Box>
           </Box>
@@ -203,8 +160,10 @@ function NewPartCard(props){
 
 
 export default function PartsList(props){
+
   const classes=useStyles();
   const {parts,partContext} = props;
+  console.log("parts=",parts)
   const partItems = parts.map((part,index)=>(
     <PartCard index={index} name={part} {...partContext[part]}
       handleRaisePart={props.handleRaisePart}

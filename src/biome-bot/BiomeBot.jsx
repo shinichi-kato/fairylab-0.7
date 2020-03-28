@@ -129,15 +129,17 @@ export default class BiomeBot{
     }else{
       this.memory = {...settings.memory };
       
-        if(!("queue" in settings.memory)){
-          this.memory.queue=[];
-        }
-      
-        if(this.currentParts.length===0){
-          this.currentParts = [...this.parts];
-        }
+      if(!("queue" in settings.memory)){
+        this.memory.queue=[];
+      }
+    
+      if(this.currentParts.length===0){
+        this.currentParts = [...this.parts];
+      }
     }
-    this.tagKeys = Object.keys(this.memory.tags);
+
+    // localStorageとアップロードの不整合でmemory.tagsがない場合がある
+    this.tagKeys = this.memory.tags ? Object.keys(this.memory.tags) : [];
     
   }
 
@@ -368,3 +370,105 @@ export default class BiomeBot{
 
  
 }
+
+function isObject(item){
+  return typeof item === 'object' && item !== null && !Array.isArray(item);
+}
+
+function isArrayOfStr(items){
+  if(Array.isArray(items)){
+    for (let item of items){
+      if(typeof item !== 'string') { return false; }
+    }
+    return true;
+  }
+  return false;
+}
+
+function checkArrayOfStr(name,items){
+  if(!isArrayOfStr(items)){
+    return name+"が文字列のリストではありません "
+  }
+  return "";
+}
+
+export function checkMemoryStructure(name,memorySource){
+	/* メモリーは
+	memory = {
+    inDictWordsForBot:[
+      '{botName}さん','{botName}君','{botName}氏',
+      '{botName}','あなた','おまえ','君'],
+    inDictWordsForUser:[
+      '{userName}','私','僕','俺'],
+    outDictBotInWords:[
+      '{botName}','私'
+    ],
+    outDictUserInWords:[
+      '{userName}さん','あなた',
+    ],
+    queue:['次の返答','次の次の返答']
+    tags:{'{example}':['例']},
+  };
+  という構造になっている。
+  これに一致しない部分はmemoryから除去するとともにエラーメッセージを返す。
+  part.jsxのfunction checkDictStructure(name,source)参照
+  */
+  
+  let errorMessage = "";
+  let memory = {};
+  try{
+    memory = JSON.parse(memorySource);
+  }
+  catch(e){
+    if(e instanceof SyntaxError){
+      errorMessage=
+      errorMessage = 
+      `${name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
+      console.log(errorMessage)
+      return {error:errorMessage}
+    }
+  }
+
+  if(isObject(memory)){
+    // スクリプト全体
+
+    errorMessage = 
+      checkArrayOfStr("inDictWordsForBot",memory.inDictWordsForBot)+
+      checkArrayOfStr("inDictWordsForUser",memory.inDictWordsForUser)+
+      checkArrayOfStr("outDictBotInWords",memory.outDictBotInWords)+
+      checkArrayOfStr("outDictUserInWords",memory.outDictUserInWords);
+    
+    if(errorMessage.length){
+      // 人称
+      return {
+        error:errorMessage
+      }
+    }
+
+
+    if(memory.tags && isObject(memory.tags)){
+      const tagKeys = Object.keys(memory.tags);
+      let newTags=new Object();
+
+      for(let key of tagKeys){
+        if(!isArrayOfStr(memory.tags[key])){
+          return {
+            error:`${key}の内容が文字列のリストになっていません`
+          }
+          
+        }
+      }
+      return {
+        error:null
+
+      }
+    }
+    else{
+      // tagsがオブジェクトでないエラー
+      return {error:"tagsは連想配列にしてください"}
+    }
+      
+  }
+  // 全体が連想配列でないエラー
+  return {error:"memoryに必要なデータが格納されていません"}
+}	

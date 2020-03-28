@@ -13,6 +13,8 @@ import PartsList from './parts-list.jsx';
 import PartEditor from './part-editor.jsx';
 import AvatarSelector from './avatar-selector.jsx';
 import MemoryEditor from './memory-editor.jsx';
+import MemoryCard from './memory-card.jsx';
+
 
 import {BotContext} from '../biome-bot/bot-provider.jsx';
 import {AuthContext} from '../authentication/auth-provider.jsx';
@@ -338,7 +340,6 @@ export default function ScriptEditor(props){
 		setEditingMemory(false);
 	}
 
-
 	const fieldUnsatisfied = state.displayName === "" || state.id === "";
 	const botUnowned = auth.user.uid !== state.creatorUID;
 	if(editingMemory){
@@ -449,7 +450,7 @@ export default function ScriptEditor(props){
 			</Grid>
 			<Grid item xs={7}>
 				<Typography variant="body2">
-					前回保存時刻
+					最新保存時刻
 				</Typography>
 				<Paper className={classes.readOnlyField}>
 					{toTimestampString(state.timestamp)}
@@ -475,11 +476,18 @@ export default function ScriptEditor(props){
 				</Paper>
 			</Grid>
 			<Grid item xs={12}>
+				<MemoryCard 
+					size={getStrByteSize(JSON.stringify(state.memory))}
+					handleEditMemory={handleEditMemory} />
+				{/* <Typography variant="body2">ことば辞書</Typography>
+				<DictSizeProgress 
+					name="ことば辞書"
+					size={} />
 				<Button 
 					variant="outlined"
 					onClick={e=>handleEditMemory()}>
-						メモリーの編集
-				</Button>
+						ことば辞書の編集
+				</Button> */}
 			</Grid>
 			<Grid item xs={12}>
 				<Typography variant="body2">

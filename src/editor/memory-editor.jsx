@@ -75,6 +75,14 @@ export default function MemoryEditor(props){
 
   const [message,setMessage] = useState("");
 
+  function handleChangeTagDict(tagDict){
+    setTagDict(tagDict);
+    try {
+      
+    } catch (error) {
+      
+    }
+  }
 
   function handleUpdate(){
     const dict = {
