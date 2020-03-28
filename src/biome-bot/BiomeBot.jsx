@@ -104,7 +104,7 @@ export default class BiomeBot{
       retention : hubParam.retention,
       isActive : false
     };
-    this.memory= {queue:[],tags:[]};
+    this.memory= {queue:[],tags:{'{notFound}':['・・・']}};
     this.tagKeys=[];
  
     
@@ -271,7 +271,7 @@ export default class BiomeBot{
   }
 
   _partCircuit(message){
-    let result = {text:null};
+    let result = {text:"{notFound}"};
     if(this.memory.queue.length !== 0){
       result.text = this.memory.queue.shift();
     }
@@ -280,7 +280,6 @@ export default class BiomeBot{
         let partName=this.currentParts[i];
       
         let part = this.partContext[partName];
-        console.log("part=",part,"i=",i)
         // availability check
         if(Math.random() > part.availability){
           // console.log("availability insufficient")
