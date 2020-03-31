@@ -195,7 +195,7 @@ export default class BiomeBot{
         if(text.indexOf('<BR>') !== -1){
           const texts = text.split('<BR>');
           text = texts.shift();
-          this.meemory.queue.push(text);
+          this.memory.queue.push(text);
         }
     
       }
