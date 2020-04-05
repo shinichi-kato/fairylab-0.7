@@ -83,7 +83,7 @@ export function LeftBalloon(props){
       <Box className={classes.leftBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
         <Typography
-          className={speech.text.length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
+          className={[...speech.text].length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
         >{speech.text}</Typography>
         <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
@@ -103,7 +103,7 @@ export function RightBalloon(props){
       <Box className={classes.rightBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
         <Typography
-          className={speech.text.length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
+          className={[...speech.text].length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
         >{speech.text}</Typography>
         <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
