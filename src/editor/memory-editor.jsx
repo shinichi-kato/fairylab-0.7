@@ -4,8 +4,9 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Paper from '@material-ui/core/Paper';
+
+import checkMemoryStructure from '../biome-bot/BiomeBot.jsx';
 
 const useStyles = makeStyles(theme => createStyles({
 	root: {
@@ -75,13 +76,21 @@ export default function MemoryEditor(props){
 
   const [message,setMessage] = useState("");
 
+  function promiseCheckMemoryStructure(name,dict){
+    return new Promise((resolve,reject)=>{
+      resolve(
+        checkMemoryStructure(name,dict)
+      );
+    });
+  }
+
   function handleChangeTagDict(tagDict){
     setTagDict(tagDict);
-    try {
-      
-    } catch (error) {
-      
-    }
+    setMessage("チェック中...");
+    promiseCheckMemoryStructure("ことば辞書",tagDict)
+    .then(result=>{
+      setMessage(result.error)
+    })
   }
 
   function handleUpdate(){

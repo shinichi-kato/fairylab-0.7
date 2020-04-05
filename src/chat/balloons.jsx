@@ -4,10 +4,18 @@ import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 
+const SHORT_TEXT_LENGTH = 1;
+
 const useStyles = makeStyles(theme => createStyles({
   root: {
     width: '95%',
     margin: 'auto',
+  },
+  longText: {
+    fontSize: 14,
+  },
+  shortText:{
+    fontSize: 32,
   },
 
   avatar: {
@@ -74,7 +82,9 @@ export function LeftBalloon(props){
       </Box>
       <Box className={classes.leftBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
-        <Typography>{speech.text}</Typography>
+        <Typography
+          className={speech.text.length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
+        >{speech.text}</Typography>
         <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
     </Box>
@@ -92,7 +102,9 @@ export function RightBalloon(props){
       alignItems="flex-end">
       <Box className={classes.rightBalloon}>
         <Typography variant="subtitle2">{speech.displayName}</Typography>
-        <Typography>{speech.text}</Typography>
+        <Typography
+          className={speech.text.length <= SHORT_TEXT_LENGTH ? classes.shortText : classes.longText }
+        >{speech.text}</Typography>
         <Typography variant="caption">{speech.timestamp}</Typography>
       </Box>
       <Box >

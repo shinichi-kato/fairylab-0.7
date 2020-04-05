@@ -256,7 +256,7 @@ export default class BiomeBot{
       if(text.indexOf('<BR>') !== -1){
         const texts = text.split('<BR>');
         text = texts.shift();
-        this.meemory.queue.push(text);
+        this.memory.queue.push(text);
       }
 
       this.dump();
@@ -423,7 +423,6 @@ export function checkMemoryStructure(name,memorySource){
       errorMessage=
       errorMessage = 
       `${name}の line:${e.lineNumber} column:${e.columnNumber} に文法エラーがあります`;
-      console.log(errorMessage)
       return {error:errorMessage}
     }
   }
@@ -458,13 +457,13 @@ export function checkMemoryStructure(name,memorySource){
         }
       }
       return {
-        error:null
+        error:"エラーはありません"
 
       }
     }
     else{
       // tagsがオブジェクトでないエラー
-      return {error:"tagsは連想配列にしてください"}
+      return {error:"{name}は連想配列にしてください"}
     }
       
   }
