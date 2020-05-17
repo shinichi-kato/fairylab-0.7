@@ -21,6 +21,10 @@ const DI_PARTICLE_MAP = {
     'で':'理由'
 }
 
+// https://bottlecaps.de/rr/ui に貼り付けるとdiagram画鋲ができる
+// Particle ::= ("が" | "を" | "に" | "は" | "へ" | "で" ) 
+// Directive ::= "<...>"
+// Text ::= ( "*"^Particle Particle? | Particle | Directive | ("%" ("[0-9][0-9]" | [0-9A-F] [0-9A-F] | "[A-F][A-F]" ) ))+
 const STATE_TABLE = {
     //     0  1  2  3  4  5  6  7  8
     '*' : [2, 2, 2, 2, 0, 0, 2, 2, 2],
